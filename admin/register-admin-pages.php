@@ -1,0 +1,89 @@
+<?php
+//add_admin_menu_user_list_page
+//add_admin_menu_certificate_page
+// current_user_can( 'special_test' )
+add_action('admin_menu', 'add_admin_menu_graduates_page');
+function add_admin_menu_graduates_page()
+{
+
+    $my_page = add_menu_page(
+        'Выпускники академии СППМ',
+        'Выпускники',
+        GRADUATES_VIEW,
+        'ml_graduates',
+        'render_graduates_page',
+        'dashicons-portfolio',
+        2
+    );
+    add_action('load-' . $my_page, 'load_graduates_page_js');
+}
+
+
+function load_graduates_page_js()
+{
+    add_action('admin_enqueue_scripts', 'enqueue_script_graduates_page');
+}
+
+function load_graduates_page_bootstrap()
+{
+    add_action('admin_enqueue_scripts', 'enqueue_script_graduates_page_bootstrap');
+}
+
+function enqueue_script_graduates_page()
+{
+    wp_enqueue_style('font-awesome', 'https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css');
+    wp_enqueue_style('jquery-ui', plugins_url('css/jquery-ui.min.css',__FILE__ ));
+    wp_enqueue_style('ml-style', plugins_url('css/style.css',__FILE__ ));
+    wp_enqueue_style('ml-bootstrap', 'https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css');
+
+    wp_enqueue_script("jquery", plugins_url('js/jquery-3.5.1.min.js',__FILE__ ));
+    wp_enqueue_script("ml-jquery-ui", plugins_url('js/jquery-ui.min.js',__FILE__ ) ,['jquery'], '', true);
+    wp_enqueue_script( 'ml-templates', plugins_url('js/script.js',__FILE__ ), ['jquery', 'ml-jquery-ui'], '', true);
+}
+
+function enqueue_script_graduates_page_bootstrap()
+{
+    wp_enqueue_style('ml-bootstrap', 'https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css');
+}
+
+function render_graduates_page()
+{
+    include 'templates/graduates.php';
+}
+
+add_action('admin_menu', 'add_admin_menu_user_list_submenu_page');
+function add_admin_menu_user_list_submenu_page()
+{
+    $my_page =  add_submenu_page('ml_graduates',
+        'Выдача сертификатов',
+        'Выдача сертификатов',
+        CERTIFICATE_DELIVERY,
+        'ml_graduates_list',
+        'render_graduates_list_page'
+    );
+    add_action('load-' . $my_page, 'load_graduates_page_bootstrap');
+}
+
+function render_graduates_list_page()
+{
+    include 'certificate-issuance.php';
+}
+
+
+
+add_action('admin_menu', 'add_admin_menu_certificate_templates_submenu_page');
+function add_admin_menu_certificate_templates_submenu_page()
+{
+    $my_page = add_submenu_page('ml_graduates',
+        'Список шаблонов сертификатов',
+        'Список шаблонов сертификатов',
+        CERTIFICATE_TEMPLATES_EDIT,
+        'ml_certificate_templates',
+        'render_certificate_templates'
+    );
+    add_action('load-' . $my_page, 'load_graduates_page_js');
+}
+function render_certificate_templates()
+{
+    include 'certificate-templates.php';
+}
