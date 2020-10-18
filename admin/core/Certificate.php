@@ -8,6 +8,7 @@ class Certificate
     public $user_id = 0;
     public $certificate_template_id = 0;
     public $product_id = 0;
+    public $certificate_name = '';
     public $graduate_first_name = '';
     public $graduate_last_name = '';
     public $graduate_surname = '';
@@ -20,6 +21,7 @@ class Certificate
 
     public function __construct(
         int $id,
+        string $certificate_name,
         int $user_id,
         int $certificate_template_id,
         int $product_id,
@@ -36,6 +38,7 @@ class Certificate
     {
         global $wpdb;
         $this->id = $id;
+        $this->certificate_name = $certificate_name;
         $this->user_id = $user_id;
         $this->certificate_template_id = $certificate_template_id;
         $this->product_id = $product_id;
@@ -52,6 +55,7 @@ class Certificate
 
     public static function create(
         int $user_id,
+        string $certificate_name,
         int $certificate_template_id,
         int $product_id,
         string $graduate_first_name,
@@ -67,10 +71,11 @@ class Certificate
         global $wpdb;
         $number = Certificate::generateCertificateNumber($user_id);
         $sql = "INSERT INTO `$wpdb->prefix" . self::TABLE_NAME . "`
-         (`user_id`, `certificate_template_id`, `product_id`, `graduate_first_name`, `graduate_last_name`, `graduate_surname`,
+         (`certificate_name`, `user_id`, `certificate_template_id`, `product_id`, `graduate_first_name`, `graduate_last_name`, `graduate_surname`,
          `date_issue`, `series`, `number`, `responsible_person`, `create_date`, `course_name`)
-          VALUES (%d, %d, %d, %s, %s, %s, %s, %s, %s, %s, %s, %s)";
+          VALUES (%s, %d, %d, %d, %s, %s, %s, %s, %s, %s, %s, %s, %s)";
         $prepare = $wpdb->prepare($sql, [
+            $certificate_name,
             $user_id,
             $certificate_template_id,
             $product_id,
@@ -95,6 +100,7 @@ class Certificate
         $data = $wpdb->get_row($sql);
         return new Certificate(
             (int)$data->certificate_id,
+            $data->certificate_name,
             (int)$data->user_id,
             (int)$data->certificate_template_id,
             (int)$data->product_id,

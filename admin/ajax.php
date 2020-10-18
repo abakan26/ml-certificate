@@ -82,10 +82,11 @@ add_action('wp_ajax_ml_certificate_delivery', function () {
     $dateIssue = $_POST['date_issue'];
     $productId = intval($_POST['product_id']);
     $users = $_POST['users'];
-
+    $product = get_post($productId);
     foreach ($users as $userId) {
         Certificate::create(
             intval($userId),
+            $product->post_excerpt,
             (int)get_post_meta($productId, 'template_id', true),
             $productId,
             get_user_meta($userId, 'first_name', true),

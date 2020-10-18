@@ -10,7 +10,7 @@ function view_user_profile_available_certificates_no_admin($profileuser)
     $userID = $profileuser->ID;
     $certificates = array_map(function ($certificate) use ($userID){
         return [
-            'text' => "get_term($certificate->term_id, 'wpm-category')->name",
+            'text' => $certificate->certificate_name,
             'view' => admin_url( 'profile.php' ) . '?certificate_id=' . $certificate->id,
             'download' => admin_url( 'profile.php' ) . '?certificate_id='. $certificate->id.'&download=1',
         ];
