@@ -1,6 +1,6 @@
 <?php
 /**
- * @global array $result
+ * @global array $categoryOptions
  */
 ?>
 <?php
@@ -27,13 +27,15 @@
 </p>
 <div class="tablenav top">
     <form id="usersByWmpLevel">
-        <select required name="product_id" id="product_id" style="display:inline-block; float:none;">
-            <option value="">Выбрать онлайн-курс</option>
-            <?php foreach ($result['course_options'] as $course): ?>
-                <option value="<?= $course['product_id']; ?>">
-                    <?= $course['product_name']; ?>
+        <select name="category_id" id="category_id">
+            <option value="">Выбрать категорию товара</option>
+            <?php foreach ($categoryOptions as $category): ?>
+                <option value="<?= $category['id']; ?>">
+                    <?= $category['name']; ?>
                 </option>
             <?php endforeach; ?>
+        </select>
+        <select required name="product_id" id="product_id" style="display:inline-block; float:none;">
         </select>
         <input type="hidden" name="action" value="ml_select_user">
         <input type="hidden" name="orderby" value="last_name">
@@ -139,7 +141,26 @@
             }
         })
 
-        $('[data-orderby]').on('click', doOrder)
+        $(certificateForm).on('change', function (event) {
+            $('#alertError').hide();
+            $('#alertSuccess').hide();
+        })
+        $('[data-orderby]').on('click', doOrder);
+
+        $('#category_id').on('change', function (event) {
+            $.ajax({
+                url: ajaxurl,
+                method: 'POST',
+                processData: false,
+                data: {
+                    'action': 'ml_get_products_by_category',
+                    'category_id': $('#category_id option:selected').val()
+                },
+                success: function (response) {
+                    $('#product_id').innerHTML = JSON.parse(response).html;
+                }
+            })
+        })
 
         function doOrder(event) {
             resetOrder();
@@ -153,7 +174,7 @@
             $('[name="order"]').val(newOrder);
             getUserByWmpLevel(form, table);
         }
-        
+
         function resetOrder() {
             jQuery('[data-orderby]').parent().addClass('sortable');
             jQuery('[data-orderby]').parent().removeClass('sorted');

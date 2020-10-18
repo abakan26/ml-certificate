@@ -64,7 +64,13 @@ class Field {
             drag: (event, ui) => {
                 this.positionYInpt.value = ui.position.top;
                 this.positionXInpt.value = ui.position.left;
-            }
+            },
+            stop: (event, ui) => {
+                ui.position.left = Math.floor(ui.position.left);
+                ui.position.top = Math.floor(ui.position.top);
+                this.positionYInpt.value = ui.position.top;
+                this.positionXInpt.value = ui.position.left;
+            },
         });
 
         jQuery(this.sizeView).resizable({

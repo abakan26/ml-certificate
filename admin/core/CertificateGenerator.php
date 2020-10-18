@@ -33,6 +33,10 @@ class CertificateGenerator
                     case 'number':
                         $field->example_text = $this->data['number'];
                         break;
+
+                    case 'course':
+                        $field->example_text = $this->data['course'];
+                        break;
                 }
             }
         }
@@ -143,13 +147,14 @@ class CertificateGenerator
     public static function getCertificateGeneratorByCertificate(Certificate $certificate)
     {
         return new CertificateGenerator(
-                CertificateTemplate::getTemplate($certificate->certificate_template_id),
-                [
-                        'name' => getFIO($certificate->user_id),
-                        'date' => $certificate->date_issue,
-                        'series' => $certificate->series,
-                        'number' => $certificate->number,
-                ]
+            CertificateTemplate::getTemplate($certificate->certificate_template_id),
+            [
+                'name' => getFIO($certificate->user_id),
+                'date' => $certificate->date_issue,
+                'series' => $certificate->series,
+                'number' => $certificate->number,
+                'course' => $certificate->course_name,
+            ]
         );
     }
 }

@@ -1,29 +1,13 @@
 <?php
-$productCourses = get_posts( [
-    'post_type' => 'product',
-    'posts_per_page' => -1,
-    'suppress_filters' => true,
-    'meta_query' => [
-        'relation' => 'AND',
-        [
-            'key' => 'has_certificate',
-            'value' => 'yes'
-        ],
-        [
-            'key' => 'how_to_issue',
-            'value' => 'employee'
-        ]
-    ]
+$productCategories = get_terms([
+    'hide_empty' => false,
+    'taxonomy' => 'product_cat'
 ]);
-
-/* Убираем Бесплатные материалы из списка*/
-//unset($levels_id[array_search(158, $levels_id)]);
-
-$result['course_options'] = array_map(function ($product){
+$categoryOptions = array_map(function ($term){
     return [
-        'product_id' => $product->ID,
-        'product_name' => $product->post_title
+        'id' => $term->term_id,
+        'name' => $term->name
     ];
-}, $productCourses);
+}, $productCategories);
 
 include 'templates/certificate-issuance.php';

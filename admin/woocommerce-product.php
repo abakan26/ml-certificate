@@ -60,10 +60,10 @@ function add_certificate_fields()
     woocommerce_wp_text_input(array(
         'id' => 'course_name',
         'name' => 'certificate[course_name]',
-        'label' => __('Название курса', 'woocommerce'),
-        'placeholder' => 'Название курса',
+        'label' => __('Название материала', 'woocommerce'),
+        'placeholder' => 'Название материала',
         'desc_tip' => 'false',
-        'description' => __('Укажите название курса, которое будет указано в сертификате', 'woocommerce'),
+        'description' => __('Укажите Название материала, которое будет указано в сертификате', 'woocommerce'),
         'value' => get_post_meta(get_the_ID(), 'course_name', true),
         'wrapper_class' => 'show_if_yes_certificate'
     ));

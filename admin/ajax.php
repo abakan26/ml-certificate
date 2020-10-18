@@ -32,7 +32,7 @@ add_action('wp_ajax_ml_select_user', function () {
 
     ob_start();
     foreach ($users as $userObj):
-        if(customerHasCertificate($userObj->ID, $productId)) continue;
+        if (customerHasCertificate($userObj->ID, $productId)) continue;
         $user = $userObj->data;
         $userId = intval($user->ID);
         ?>
@@ -103,4 +103,49 @@ add_action('wp_ajax_ml_certificate_delivery', function () {
     die(json_encode(['success' => true]));
 });
 
+add_action('wp_ajax_ml_get_products_by_category', function () {
+    $productCourses = get_posts([
+        'post_type' => 'product',
+        'posts_per_page' => -1,
+        'suppress_filters' => true,
+        'tax_query' => [
+            [
+                'taxonomy' => 'product_cat',
+                'field' => 'term_id',
+                'terms' => intval($_POST['category_id'])
+            ]
+        ],
+        'meta_query' => [
+            'relation' => 'AND',
+            [
+                'key' => 'has_certificate',
+                'value' => 'yes'
+            ],
+            [
+                'key' => 'how_to_issue',
+                'value' => 'employee'
+            ]
+        ]
+    ]);
+
+    /* Убираем Бесплатные материалы из списка*/
+    //unset($levels_id[array_search(158, $levels_id)]);
+
+    $courseOptions = array_map(function ($product) {
+        return [
+            'product_id' => $product->ID,
+            'product_name' => $product->post_title
+        ];
+    }, $productCourses);
+    ob_start();
+    ?>
+    <option value="">Выбрать товар</option>
+    <?php foreach ($courseOptions as $course): ?>
+        <option value="<?= $course['product_id']; ?>">
+            <?= $course['product_name']; ?>
+        </option>
+    <?php endforeach; ?>
+    <?php
+    die(json_encode(['html' => ob_get_clean()]));
+});
 ?>
