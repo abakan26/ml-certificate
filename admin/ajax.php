@@ -34,18 +34,29 @@ add_action('wp_ajax_ml_select_user', function () {
     foreach ($users as $userObj):
         if(customerHasCertificate($userObj->ID, $productId)) continue;
         $user = $userObj->data;
+        $userId = intval($user->ID);
         ?>
-        <tr id="user-<?= $user->ID ?>">
+        <tr id="user-<?= $userId ?>">
             <th scope="row" class="check-column">
                 <label class="screen-reader-text" for="user_1">Выбрать <?= $user->user_login; ?></label>
-                <input type="checkbox" name="users[]" id="user_<?= $user->ID ?>" value="<?= $user->ID ?>">
+                <input type="checkbox" name="users[]" id="user_<?= $userId ?>" value="<?= $userId ?>">
             </th>
             <td class="username column-username has-row-actions column-primary">
-                <a href='<?= get_edit_user_link($user->ID); ?>'><?= $user->user_login; ?></a>
+                <a href='<?= get_edit_user_link($userId); ?>'><?= $user->user_login; ?></a>
             </td>
             <td class="name column-name">
                 <strong>
-                    <?= getFIO(intval($user->ID)); ?>
+                    <?= get_user_meta($userId, 'last_name', true); ?>
+                </strong>
+            </td>
+            <td class="name column-name">
+                <strong>
+                    <?= get_user_meta($userId, 'first_name', true); ?>
+                </strong>
+            </td>
+            <td class="name column-name">
+                <strong>
+                    <?= get_user_meta($userId, 'surname', true); ?>
                 </strong>
             </td>
         </tr>
@@ -83,7 +94,7 @@ add_action('wp_ajax_ml_certificate_delivery', function () {
             $dateIssue,
             get_post_meta($productId, 'certificate_series', true),
             get_current_user_id(),
-            date('m.d.Y'),
+            date('Y-m-d'),
             get_post_meta($productId, 'course_name', true)
         );
     }
