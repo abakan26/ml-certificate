@@ -48,9 +48,9 @@ class Certificate
         $this->date_issue = $date_issue;
         $this->series = $series;
         $this->number = $number;
-        $this->number = $responsible_person;
-        $this->number = $create_date;
-        $this->number = $course_name;
+        $this->responsible_person = $responsible_person;
+        $this->create_date = $create_date;
+        $this->course_name = $course_name;
     }
 
     public static function create(

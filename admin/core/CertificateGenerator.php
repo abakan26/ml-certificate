@@ -17,20 +17,21 @@ class CertificateGenerator
     public function render($filename = 'certificate.pdf', $type = self::VIEW)
     {
         $fields = $this->template->getFields();
-        if ($this->data){
+
+        if (!is_null($this->data)){
             foreach ($fields as $key => $field){
                 switch ($key){
                     case 'name':
-                        $field->example = $this->data['name'];
+                        $field->example_text = $this->data['name'];
                         break;
                     case 'date':
-                        $field->example = $this->data['date'];
+                        $field->example_text = $this->data['date'];
                         break;
                     case 'series':
-                        $field->example = $this->data['series'];
+                        $field->example_text = $this->data['series'];
                         break;
                     case 'number':
-                        $field->example = $this->data['number'];
+                        $field->example_text = $this->data['number'];
                         break;
                 }
             }
@@ -43,7 +44,6 @@ class CertificateGenerator
 
         $defaultFontConfig = (new Mpdf\Config\FontVariables())->getDefaults();
         $fontData = $defaultFontConfig['fontdata'];
-
 
         $mpdf = new \Mpdf\Mpdf([
             'mode' => 'utf-8',
@@ -62,20 +62,25 @@ class CertificateGenerator
         ]);
         ob_clean();
 
-        try {
-            $stylesheet = file_get_contents(PLUGIN_ADMIN_PATH . '/css/style.css');
 
+        try {
+
+            $stylesheet = file_get_contents(PLUGIN_ADMIN_PATH . '/css/style.css');
             $mpdf->WriteHTML($stylesheet, \Mpdf\HTMLParserMode::HEADER_CSS);
             $mpdf->BeginLayer(1);
             $mpdf->WriteHTML($this->getImage($image_src), \Mpdf\HTMLParserMode::HTML_BODY);
             $mpdf->EndLayer();
             $mpdf->BeginLayer(2);
+
             foreach ($fields as $field) {
+
                 if ($field->hide){
                     continue;
                 }
+
                 $mpdf->WriteHTML($this->getField((array)$field));
             }
+
             if ($type === self::VIEW) {
                 $mpdf->Output($filename, \Mpdf\Output\Destination::INLINE);
             } elseif ($type === self::DOWNLOAD) {
