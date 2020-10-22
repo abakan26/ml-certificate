@@ -23,14 +23,34 @@ function getUsersByWPMLevelId($wpmLevelID)
     ];
 
     if (isset($_POST['orderby'])){
-        $params['meta_query'] = [
-            'fio' => [
-                'key' => $_POST['orderby']
-            ]
-        ];
-        $params['orderby'] = 'fio';
-        $params['order'] = $_POST['order'];
+        $params = array_merge($params, getOrderBy());
     }
 
     return get_users($params);
+}
+
+function getOrderBy(): array
+{
+    if ($_POST['orderby'] === 'user_login'){
+        return [
+            'orderby' => $_POST['orderby'],
+            'order' => $_POST['order']
+        ];
+    }
+    return [
+        'meta_query' => [
+            'meta_field' => [
+                'key' => $_POST['orderby']
+            ]
+        ],
+        'orderby' => 'meta_field',
+        'order' => $_POST['order']
+    ];
+//    $params['meta_query'] = [
+//        'fio' => [
+//            'key' => $_POST['orderby']
+//        ]
+//    ];
+//    $params['orderby'] = 'fio';
+//    $params['order'] = $_POST['order'];
 }

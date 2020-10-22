@@ -98,6 +98,13 @@ function save_certificate_fields($post_id)
         foreach ($_POST['certificate'] as $key => $value) {
             update_post_meta($post_id, $key, $value);
         }
+        foreach (Certificate::getCertificatesByProductId($post_id, 'ids') as $certificate_id){
+            Certificate::update($certificate_id, [
+               'certificate_template_id' => $_POST['certificate']['template_id'],
+               'series' => $_POST['certificate']['certificate_series'],
+               'course_name' => $_POST['certificate']['course_name'],
+            ]);
+        }
     } else {
         delete_post_meta($post_id, 'has_certificate');
         foreach ($_POST['certificate'] as $key => $value) {
@@ -105,6 +112,16 @@ function save_certificate_fields($post_id)
         }
     }
 
+}
+
+add_action('save_post_product', 'updateCertificateDataFromProduct', 10, 1);
+function updateCertificateDataFromProduct($postId)
+{
+    foreach (Certificate::getCertificatesByProductId($postId, 'ids') as $certificate_id){
+        Certificate::update($certificate_id, [
+            'certificate_name' => get_post($postId)->post_excerpt
+        ]);
+    }
 }
 
 add_action('admin_footer', 'add_style_script_certificate_fields');

@@ -104,6 +104,7 @@ add_action('wp_ajax_ml_certificate_delivery', function () {
 });
 
 add_action('wp_ajax_ml_get_products_by_category', function () {
+
     $productCourses = get_posts([
         'post_type' => 'product',
         'posts_per_page' => -1,

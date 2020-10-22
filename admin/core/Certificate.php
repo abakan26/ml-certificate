@@ -100,21 +100,39 @@ class Certificate
         $data = $wpdb->get_row($sql);
         return new Certificate(
             (int)$data->certificate_id,
-            $data->certificate_name,
+            $data->certificate_name ? $data->certificate_name : 'Название сертификата',
             (int)$data->user_id,
             (int)$data->certificate_template_id,
             (int)$data->product_id,
 
-            $data->graduate_first_name,
-            $data->graduate_last_name,
-            $data->graduate_surname,
+            $data->graduate_first_name ? $data->graduate_first_name : '',
+            $data->graduate_last_name ? $data->graduate_last_name : '',
+            $data->graduate_surname ? $data->graduate_surname : '',
             $data->date_issue,
-            $data->series,
+            $data->series ? $data->series : '',
             $data->number,
             $data->responsible_person,
             $data->create_date,
-            $data->course_name
+            $data->course_name ? $data->course_name : ''
         );
+    }
+
+    public static function update(int $certificate_id, array $fields = [])
+    {
+        global $wpdb;
+        $tablename = $wpdb->prefix . self::TABLE_NAME;
+        $setData = Data::dataToString(self::cleanKey($fields));
+        $wpdb->query("UPDATE $tablename SET $setData WHERE `certificate_id` = $certificate_id");
+    }
+
+    public static function cleanKey(array $fields): array
+    {
+        global $wpdb;
+        $tablename = $wpdb->prefix . self::TABLE_NAME;
+        $keys = $wpdb->get_col("SHOW COLUMNS FROM $tablename");
+        return array_filter($fields, function ($key) use ($keys){
+            return in_array($key, $keys);
+        }, ARRAY_FILTER_USE_KEY);
     }
 
     public static function generateCertificateNumber(int $user_id): string
@@ -134,7 +152,7 @@ class Certificate
         global $wpdb;
         $certificates = [];
         $sql = "SELECT certificate_id FROM {$wpdb->prefix}" . self::TABLE_NAME . " WHERE user_id = $userId";
-        foreach ($wpdb->get_col($sql) as $id){
+        foreach ($wpdb->get_col($sql) as $id) {
             $certificates[] = Certificate::getCertificate($id);
         }
         return $certificates;
@@ -146,5 +164,21 @@ class Certificate
         $sql = "SELECT * FROM {$wpdb->prefix}" . self::TABLE_NAME . " 
                 WHERE user_id = $userId AND certificate_id = $certificateId";
         return !empty($wpdb->get_var($sql));
+    }
+
+    public static function getCertificatesByProductId(int $productId, $flag = 'object'): array
+    {
+        global $wpdb;
+        $tableName = $wpdb->prefix . self::TABLE_NAME;
+        $certificateIds = $wpdb->get_col("SELECT `certificate_id`
+            FROM $tableName
+            WHERE `product_id` = $productId"
+        );
+        if ($flag = 'ids') {
+            return $certificateIds;
+        }
+        return array_map(function ($id){
+            return self::getCertificate($id);
+        }, $certificateIds);
     }
 }

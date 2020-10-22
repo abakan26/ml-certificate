@@ -3,7 +3,7 @@ add_action('show_user_profile', 'view_user_profile_available_certificates', 10);
 add_action('show_user_profile', 'view_user_profile_available_certificates_no_admin', 10);
 add_action('edit_user_profile', 'view_user_profile_available_certificates', 10);
 add_action('admin_print_scripts-profile.php', 'disabled_edit_any_fields');
-
+add_action( 'profile_update',  'updateCustomerFieldInCertificate', 10, 1);
 
 function view_user_profile_available_certificates_no_admin($profileuser)
 {
@@ -59,5 +59,16 @@ function disabled_edit_any_fields()
             });
         </script>
         <?php
+    }
+}
+
+function updateCustomerFieldInCertificate($userId)
+{
+    foreach(Certificate::getCustomerCertificates($userId) as $certificate){
+        Certificate::update($certificate->id, [
+            'graduate_first_name' => get_user_meta($userId, 'first_name', true),
+            'graduate_last_name' => get_user_meta($userId, 'last_name', true),
+            'graduate_surname' => get_user_meta($userId, 'surname', true),
+        ]);
     }
 }

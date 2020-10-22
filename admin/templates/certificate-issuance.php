@@ -38,7 +38,7 @@
         <select required name="product_id" id="product_id" style="display:inline-block; float:none;">
         </select>
         <input type="hidden" name="action" value="ml_select_user">
-        <input type="hidden" name="orderby" value="last_name">
+        <input type="hidden" name="orderby" value="user_login">
         <input type="hidden" name="order" value="asc">
         <input type="submit" id="ml_select_user" class="button" value="Выбрать">
     </form>
@@ -66,8 +66,10 @@
                 </label>
                 <input id="cb-select-all-1" type="checkbox">
             </td>
-            <th scope="col" id="username" class="manage-column column-username column-primary sortable desc">
-                <span>Имя пользователя</span>
+            <th scope="col" id="user_login" class="manage-column column-username column-primary sortable asc">
+                <span data-orderby="user_login">
+                    <span>Имя пользователя</span><span class="sorting-indicator"></span>
+                </span>
             </th>
             <th scope="col" id="last_name" class="manage-column column-primary sortable asc">
                 <span data-orderby="last_name">
@@ -151,13 +153,12 @@
             $.ajax({
                 url: ajaxurl,
                 method: 'POST',
-                processData: false,
                 data: {
                     'action': 'ml_get_products_by_category',
                     'category_id': $('#category_id option:selected').val()
                 },
                 success: function (response) {
-                    $('#product_id').innerHTML = JSON.parse(response).html;
+                    $('#product_id').html(JSON.parse(response).html);
                 }
             })
         })
