@@ -87,3 +87,21 @@ function render_certificate_templates()
 {
     include 'certificate-templates.php';
 }
+
+add_action('admin_menu', 'add_admin_menu_edit_certificate_submenu_page');
+function add_admin_menu_edit_certificate_submenu_page()
+{
+    $my_page =  add_submenu_page('ml_graduates',
+        'Выданные сертификаты',
+        'Выданные сертификаты',
+        CERTIFICATE_EDIT,
+        'ml_certificate_edit',
+        'render_edit_certificate_page'
+    );
+    add_action('load-' . $my_page, 'load_graduates_page_bootstrap');
+}
+
+function render_edit_certificate_page()
+{
+    include 'certificate-edit.php';
+}

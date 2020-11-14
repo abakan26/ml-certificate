@@ -1,3 +1,5 @@
 <?php
+echo '<pre>'; 
+var_dump();
 
-Certificate::update(['certificate_template_id' => 5, 'asas' => 'fgfg']);
+echo '</pre>';

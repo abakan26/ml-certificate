@@ -10,6 +10,12 @@ define('PLUGIN_NAME', 'ml-certificate');
 define('PLUGIN_URI', plugin_dir_url('ml-certificate/ml-certificate.php'));
 define('CERTIFICATE_DELIVERY', 'certificate-delivery');
 define('CERTIFICATE_TEMPLATES_EDIT', 'certificate-edit');
+
+/* TODO */
+define('CERTIFICATE_EDIT', 'certificate-edit');
+define('CERTIFICATE_DELETE', 'certificate-delete');
+/* TODO */
+
 define('GRADUATES_VIEW', 'graduates-view');
 define('GRADUATES_EDIT', 'graduates-edit');
 define('CATEGORY_ONLINE_COURSES', 36);

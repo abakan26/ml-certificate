@@ -181,6 +181,6 @@ class CertificateTemplate
 
     public static function getTemplateLink(int $certificate_template_id): string
     {
-        return admin_url() . 'admin.php?page=ml_certificate_templates&certificate_id=' . $certificate_template_id;
+       return admin_url() . 'admin.php?page=ml_certificate_templates&certificate_id=' . $certificate_template_id;
     }
 }

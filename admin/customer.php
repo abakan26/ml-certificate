@@ -46,11 +46,4 @@ function getOrderBy(): array
         'orderby' => 'meta_field',
         'order' => $_POST['order']
     ];
-//    $params['meta_query'] = [
-//        'fio' => [
-//            'key' => $_POST['orderby']
-//        ]
-//    ];
-//    $params['orderby'] = 'fio';
-//    $params['order'] = $_POST['order'];
 }

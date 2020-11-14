@@ -8,6 +8,7 @@ add_action( 'profile_update',  'updateCustomerFieldInCertificate', 10, 1);
 function view_user_profile_available_certificates_no_admin($profileuser)
 {
     $userID = $profileuser->ID;
+    
     $certificates = array_map(function ($certificate) use ($userID){
         return [
             'text' => $certificate->certificate_name,
