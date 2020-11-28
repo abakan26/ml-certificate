@@ -1,6 +1,7 @@
 <?php
 
 define('PLUGIN_ADMIN_PATH', __DIR__);
+define('PLUGIN_ADMIN_URI', PLUGIN_URI . '/admin');
 spl_autoload_register(function ($class_name) {
     $file_name = __DIR__ . "/core/{$class_name}.php";
     if (file_exists($file_name)) require $file_name;

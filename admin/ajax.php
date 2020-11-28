@@ -104,49 +104,71 @@ add_action('wp_ajax_ml_certificate_delivery', function () {
 });
 
 add_action('wp_ajax_ml_get_products_by_category', function () {
-
-    $productCourses = get_posts([
-        'post_type' => 'product',
-        'posts_per_page' => -1,
-        'suppress_filters' => true,
-        'tax_query' => [
-            [
-                'taxonomy' => 'product_cat',
-                'field' => 'term_id',
-                'terms' => intval($_POST['category_id'])
-            ]
-        ],
-        'meta_query' => [
-            'relation' => 'AND',
-            [
-                'key' => 'has_certificate',
-                'value' => 'yes'
-            ],
-            [
-                'key' => 'how_to_issue',
-                'value' => 'employee'
-            ]
-        ]
-    ]);
-
-    /* Убираем Бесплатные материалы из списка*/
-    //unset($levels_id[array_search(158, $levels_id)]);
-
-    $courseOptions = array_map(function ($product) {
-        return [
-            'product_id' => $product->ID,
-            'product_name' => $product->post_title
-        ];
-    }, $productCourses);
     ob_start();
     ?>
     <option value="">Выбрать товар</option>
-    <?php foreach ($courseOptions as $course): ?>
+    <?php foreach (Course::getCourseOptions(intval($_POST['category_id'])) as $course): ?>
         <option value="<?= $course['product_id']; ?>">
             <?= $course['product_name']; ?>
         </option>
     <?php endforeach; ?>
     <?php
     die(json_encode(['html' => ob_get_clean()]));
+});
+
+add_action('wp_ajax_ml_test', function () {
+    include PLUGIN_ADMIN_PATH . '/templates/parts/member-certificate-row.php';
+    $data = json_decode(stripslashes($_POST['data']));
+    $params = [
+        'page_num' => $data->page_num,
+        'per_page' => $data->per_page,
+        'order_by' => $data->orderby,
+        'order' => $data->order,
+        'filter' => isset($data->filter) ? $data->filter : null
+    ];
+    $query = Certificate::query($params);
+    $pageNum = $query['page_num'];
+    $perPage = $query['per_page'];
+    $totalPages = $query['total_pages'];
+    $total = $query['total'];
+    die(json_encode([
+        'html' => [
+            'tbody' => empty($query['result']) ? '<tr><td colspan="10">Не надено ни одного результата</td></tr>' : renderTbody($query['result'], true),
+            'result_count' => renderResultCount($pageNum, $perPage, $totalPages, $total),
+            'pagination' => getPagination([
+                'link' => "?page_num=",
+                'page' => $pageNum,
+                'total' => $totalPages
+            ]),
+            'data' => ['page' => $pageNum, 'per_page' => $perPage, 'total_pages' => $totalPages, 'total' => $total],
+            'res' => $query['result']
+        ],
+        'sql' => $query['sql']
+    ]));
+});
+
+
+add_action('wp_ajax_ml_delete_certificate', function () {
+    $data = json_decode(stripslashes($_POST['data']), true);
+    foreach ($data as $certificate_id) {
+        Certificate::delete(intval($certificate_id));
+    }
+    die(json_encode([
+        'data' => $data,
+        'status' => 'success'
+    ]));
+});
+
+add_action('wp_ajax_ml_update_certificates_template_id', function () {
+    $data = json_decode(stripslashes($_POST['data']), true);
+    $certificate_template_id = intval($data['template_id']);
+    foreach ($data['certificates'] as $certificate_id) {
+        Certificate::update(intval($certificate_id), [
+                'certificate_template_id' => $certificate_template_id
+        ]);
+    }
+    die(json_encode([
+        'status' => 'success'
+    ]));
 });
 ?>

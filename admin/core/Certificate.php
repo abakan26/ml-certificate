@@ -125,12 +125,20 @@ class Certificate
         $wpdb->query("UPDATE $tablename SET $setData WHERE `certificate_id` = $certificate_id");
     }
 
+    public static function delete(int $certificate_id)
+    {
+        global $wpdb;
+        $tablename = $wpdb->prefix . self::TABLE_NAME;
+        $wpdb->query("DELETE FROM $tablename WHERE `certificate_id` = $certificate_id");
+        //TODO return bool
+    }
+
     public static function cleanKey(array $fields): array
     {
         global $wpdb;
         $tablename = $wpdb->prefix . self::TABLE_NAME;
         $keys = $wpdb->get_col("SHOW COLUMNS FROM $tablename");
-        return array_filter($fields, function ($key) use ($keys){
+        return array_filter($fields, function ($key) use ($keys) {
             return in_array($key, $keys);
         }, ARRAY_FILTER_USE_KEY);
     }
@@ -166,19 +174,106 @@ class Certificate
         return !empty($wpdb->get_var($sql));
     }
 
-    public static function getCertificatesByProductId(int $productId, $flag = 'object'): array
+    public static function getCertificatesByProductId(int $productId, $flag = 'object', $excludeRP1 = false): array
     {
         global $wpdb;
         $tableName = $wpdb->prefix . self::TABLE_NAME;
         $certificateIds = $wpdb->get_col("SELECT `certificate_id`
             FROM $tableName
-            WHERE `product_id` = $productId"
+            WHERE `product_id` = $productId" . ($excludeRP1 ? ' AND `responsible_person` != 1' : '')
         );
         if ($flag = 'ids') {
             return $certificateIds;
         }
-        return array_map(function ($id){
+        return array_map(function ($id) {
             return self::getCertificate($id);
         }, $certificateIds);
+    }
+
+    public static function insertCertificate(array $params): int
+    {
+        global $wpdb;
+        $tableName = $wpdb->prefix . self::TABLE_NAME;
+        $sql = "INSERT INTO `$tableName`
+         (
+          `user_id`, `product_id`, `certificate_name`, `certificate_template_id`,
+          `graduate_first_name`, `graduate_last_name`, `graduate_surname`,
+          `date_issue`, `series`, `number`, `responsible_person`,
+          `create_date`, `course_name`)
+          VALUES (
+            %d, %d, %s, %d,
+            %s, %s, %s,
+            %s, %s, %s, %d,
+            %s, %s
+          )";
+        $prepare = $wpdb->prepare($sql, [
+            $params['user_id'], $params['product_id'], $params['certificate_name'], $params['certificate_template_id'],
+            $params['graduate_first_name'], $params['graduate_last_name'], $params['graduate_surname'],
+            $params['date_issue'], $params['series'], $params['number'], $params['responsible_person'],
+            $params['create_date'], $params['course_name'],
+        ]);
+        $wpdb->query($prepare);
+        return $wpdb->insert_id;
+    }
+
+    public static function query($params)
+    {
+        global $wpdb;
+        $tableName = $wpdb->prefix . self::TABLE_NAME;
+        $perPage = isset($params['per_page']) ? $params['per_page'] : 10;
+        $orderBy = isset($params['order_by']) ? $params['order_by'] : 'user_login';
+        $order = isset($params['order']) ? strtoupper($params['order']) : 'ASC';
+        $filter = isset($params['filter']) ? (array)$params['filter'] : null;
+
+        $whereConditions = [];
+        foreach ($filter as $key => $value) {
+            if ((is_string($value) || is_numeric($value)) && !empty($value)) {
+                $whereConditions[] = " `$key` = " . esc_sql($value);
+            } elseif (is_array($value)) {
+                if (!empty($value['from']) && !empty($value['to'])) {
+                    $whereConditions[] = " ( `$key` BETWEEN '" . esc_sql($value['from']) . "' AND '" . esc_sql($value['to']) . "')";
+                } elseif (!empty($value['from'])) {
+                    $whereConditions[] = " `$key` = '" . esc_sql($value['from']) . "'";
+                } elseif (!empty($value['to'])) {
+                    $whereConditions[] = " `$key` = '" . esc_sql($value['to']) . "'";
+                }
+            } elseif (is_object($value)) {
+                if (!empty($value->from) && !empty($value->to)) {
+                    $whereConditions[] = " ( `$key` BETWEEN '" . esc_sql($value->from) . "' AND '" . esc_sql($value->to) . "')";
+                } elseif (!empty($value->from)) {
+                    $whereConditions[] = " `$key` = '" . esc_sql($value->from) . "'";
+                } elseif (!empty($value->to)) {
+                    $whereConditions[] = " `$key` = '" . esc_sql($value->to) . "'";
+                }
+
+            }
+        }
+
+        //construct query
+        $count_query = 'SELECT COUNT(*)';
+        $base_query = "SELECT certificate.*, users.`user_login`";
+        $inner_query = " FROM $tableName AS certificate
+            LEFT JOIN $wpdb->users AS users ON certificate.user_id = users.ID";
+        $where = empty($whereConditions) ? '' : ' WHERE' . implode(' AND', $whereConditions);
+        $order = " ORDER BY $orderBy $order";
+        $sql_count_query = $count_query . $inner_query . $where . $order;
+        $total = $wpdb->get_var($sql_count_query);
+        $totalPages = (int)ceil($total / $perPage);
+        if (!isset($params['page_num']) || empty($params['page_num'])) {
+            $pageNum = 1;
+        } else {
+            $pageNum = $params['page_num'] > $totalPages ? $totalPages : $params['page_num'];
+        }
+        $start = $perPage * ($pageNum - 1);
+        $limit = " LIMIT {$start}, {$perPage}";
+        $sql_query = $base_query . $inner_query . $where . $order . $limit;
+        return [
+            'result' => $wpdb->get_results($sql_query),
+            'page_num' => $pageNum,
+            'per_page' => $perPage,
+            'total_pages' => $totalPages,
+            'total' => $total,
+            'sql' => $sql_query
+        ];
     }
 }

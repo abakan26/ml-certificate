@@ -30,16 +30,12 @@ function dump($var)
 
 function get_n_csv($filename, $offset, $length, $callback)
 {
-
     $position = 0;
     $handle = fopen($filename, "r");
-
     if ($handle === false) {
         return false;
     }
-
     fseek($handle, $offset);
-
     for ($i = 0; $i < $length; $i++) {
         $callback(fgetcsv($handle, 300, ","));
     }
@@ -107,14 +103,11 @@ function handler_existing_user($user, $data)
     }
     $date_issue = $date->format('Y-m-d');
     $create_date = $date_issue;
-
     /* Не указано ни имя, ни фамилия*/
     if (empty($user_data['first_name']) && empty($user_data['last_name'])) {
-//        do_import($data);
-        print_r($data);
+        do_import($data);
         return;
     }
-    return;
     if (is_coincidence($user_data, $table_data)) {
         do_import($data);
         return;
@@ -136,12 +129,10 @@ function do_import($fields)
 function import_handler($data)
 {
     $email = trim($data[3]);
-    print_r($email);
     if ($user = get_user_by('email', $email)) {
         handler_existing_user($user, $data);
         return;
     }
-    return;
     write_not_exist($data);
 }
 
@@ -230,32 +221,17 @@ function _import_($length)
     file_put_contents(__DIR__ . '/step.txt', $offset);
 }
 
-
-function s_n_csv($filename, $offset, $length)
+$users = [];
+function print_queries($data)
 {
-    $users = [];
-    $position = 0;
-    $handle = fopen($filename, "r");
+    global $users;
+    $users[] = $data;
 
-    if ($handle === false) {
-        return false;
-    }
-
-    fseek($handle, $offset);
-
-    for ($i = 0; $i < $length; $i++) {
-        $users[] = fgetcsv($handle, 300, ",");
-    }
-    $position = ftell($handle);
-    fclose($handle);
-    return $users;
 }
 
-$users = s_n_csv(dirname(__DIR__) . '/import-sert.csv', 0, 2969);
-$res = array_map(function ($user){
-    return $user[5 ];
-}, $users);
-dump(array_unique($res));
+$offset = get_n_csv(__DIR__ . '/import-sert.csv', 0, 10, 'print_queries');
+print 'sdsd';
+print_r($users);
 //_import_(700);
 
 $time_end = microtime(true);

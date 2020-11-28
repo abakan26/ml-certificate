@@ -183,4 +183,11 @@ class CertificateTemplate
     {
        return admin_url() . 'admin.php?page=ml_certificate_templates&certificate_id=' . $certificate_template_id;
     }
+
+    public static function getNameById(int $id){
+        global $wpdb;
+        return $wpdb->get_var("SELECT name FROM {$wpdb->prefix}" . self::TABLE_NAME . " 
+        WHERE certificate_template_id = $id" );
+    }
+
 }

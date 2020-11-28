@@ -98,7 +98,7 @@ function save_certificate_fields($post_id)
         foreach ($_POST['certificate'] as $key => $value) {
             update_post_meta($post_id, $key, $value);
         }
-        foreach (Certificate::getCertificatesByProductId($post_id, 'ids') as $certificate_id){
+        foreach (Certificate::getCertificatesByProductId($post_id, 'ids', true) as $certificate_id){
             Certificate::update($certificate_id, [
                'certificate_template_id' => $_POST['certificate']['template_id'],
                'series' => $_POST['certificate']['certificate_series'],
