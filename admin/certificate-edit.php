@@ -1,8 +1,19 @@
 <?php
+if (isset($_GET['mode']) && $_GET['mode'] === 'view' && isset($_GET['certificate_id']) && !empty($_GET['certificate_id'])) {
+    $certificate_id = intval($_GET['certificate_id']);
+    $certificate = Certificate::getCertificate($certificate_id);
+    $generator = CertificateGenerator::getCertificateGeneratorByCertificate($certificate);
+    if (isset($_GET['download']) && !empty($_GET['download'])) {
+        $generator->render('certificate.pdf', CertificateGenerator::DOWNLOAD);
+        exit();
+    }
+    $generator->render();
+    exit();
+}
 require 'templates/parts/member-certificate-row.php';
 $pageNum = isset($_GET['page_num']) ? $_GET['page_num'] : 1;
 $filters = [];
-if(isset($_GET['certificate_template_id']) && !empty($_GET['certificate_template_id'])){
+if (isset($_GET['certificate_template_id']) && !empty($_GET['certificate_template_id'])) {
     $filters['certificate_template_id'] = intval($_GET['certificate_template_id']);
 }
 $perPage = isset($_GET['per_page']) ? intval($_GET['per_page']) : 10;
@@ -19,93 +30,125 @@ $certificates = $query['result'];
 
 <div class="container-fluid">
     <form id="filterForm">
-        <div class="card p-0" style="max-width: 1200px">
-            <div class="card-header">
-                <h6 class="m-0">
-                    Фильтры
-                    <a data-toggle="collapse" href="#collapse-filter" aria-expanded="true"
-                       aria-controls="collapse-filter"
-                       class="d-block float-right" id="heading-filter">
-                        <i class="fa fa-chevron-down pull-right"></i>
-                    </a>
-                </h6>
+        <div class="row">
+            <div class="col-lg-12 col-xl-9">
+                <div class="card p-0" style="max-width: unset;">
+                    <div class="card-header">
+                        <h6 class="m-0">
+                            Фильтры
+                            <a data-toggle="collapse" href="#collapse-filter" aria-expanded="true"
+                               aria-controls="collapse-filter"
+                               class="d-block float-right" id="heading-filter">
+                                <i class="fa fa-chevron-down pull-right"></i>
+                            </a>
+                        </h6>
+                    </div>
+                    <div class="card-body p-3 collapse show" id="collapse-filter" aria-labelledby="heading-filter">
+                        <div class="form-row">
+                            <div class="col-xl-3">
+                                <div class="form-group">
+                                    <label for="certificateTemplateId">Шаблон сертификата</label>
+                                    <select class="form-control" id="certificateTemplateId"
+                                            name="filter[certificate_template_id]">
+                                        <option value="">Не выбран</option>
+                                        <?php foreach (CertificateTemplate::getCertificateTemplates() as $template): ?>
+                                            <?php
+                                            $selected = '';
+                                            if (isset($filters['certificate_template_id']) &&
+                                                $filters['certificate_template_id'] === $template->id) {
+                                                $selected = ' selected';
+                                            } ?>
+                                            <option value="<?= $template->id ?>"<?= $selected ?>><?= $template->name ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-xl-3">
+                                <div class="form-group">
+                                    <label for="productId">Товар</label>
+                                    <select class="form-control" id="productId" name="filter[product_id]">
+                                        <option value="">Не выбран</option>
+                                        <?php foreach (Course::getCourseOptions() as $course): ?>
+                                            <option value="<?= $course['product_id']; ?>">
+                                                <?= $course['product_name']; ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-xl-4">
+                                <label>Дата создания</label>
+                                <div class="form-row">
+                                    <div class="col-xl-6 form-group">
+                                        <input type="date" class="form-control" name="filter[create_date][from]">
+                                    </div>
+                                    <div class="col-xl-6 form-group">
+                                        <input type="date" class="form-control" name="filter[create_date][to]">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xl-4">
+                                <label>Дата выдачи</label>
+                                <div class="form-row">
+                                    <div class="col-xl-6 form-group">
+                                        <input type="date" class="form-control" name="filter[date_issue][from]">
+                                    </div>
+                                    <div class="col-xl-6 form-group">
+                                        <input type="date" class="form-control" name="filter[date_issue][to]">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xl-3">
+                                <div class="form-group">
+                                    <label for="">Кем выдан</label>
+                                    <select class="form-control" id="responsiblePersonId"
+                                            name="filter[responsible_person]">
+                                        <option value="">Выберите</option>
+                                        <?php foreach (ResponsiblePerson::getResponsiblePersons() as $person): ?>
+                                            <option value="<?= $person->ID ?>"><?= $person->data->user_login ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col form-group" style="padding-top: 24px;">
+                                <div style="margin-top: .5rem; text-align: right">
+                                    <button class="btn btn-secondary mr-3" type="button" data-action="reset_filters">
+                                        Сбросить
+                                    </button>
+                                    <button class="btn btn-primary" type="button" data-action="apply_filters">
+                                        Применить
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="card-body p-3 collapse show" id="collapse-filter" aria-labelledby="heading-filter">
-                <div class="form-row">
-                    <div class="col-xl-3">
+            <div class="col-lg-12 col-xl-3">
+                <div class="card p-0" style="max-width: unset;">
+                    <div class="card-header">
+                        <h6 class="m-0">
+                            Поиск по email
+                            <a data-toggle="collapse" href="#collapse-search" aria-expanded="true"
+                               aria-controls="collapse-search"
+                               class="d-block float-right" id="heading-search">
+                                <i class="fa fa-chevron-down pull-right"></i>
+                            </a>
+                        </h6>
+                    </div>
+                    <div class="card-body p-3 collapse show" id="collapse-search" aria-labelledby="heading-search">
                         <div class="form-group">
                             <label for="certificateTemplateId">Шаблон сертификата</label>
-                            <select class="form-control" id="certificateTemplateId"
-                                    name="filter[certificate_template_id]">
-                                <option value="">Не выбран</option>
-                                <?php foreach (CertificateTemplate::getCertificateTemplates() as $template): ?>
-                                    <?php
-                                    $selected = '';
-                                    if (isset($filters['certificate_template_id']) &&
-                                     $filters['certificate_template_id'] === $template->id) {
-                                        $selected =' selected';
-                                    } ?>
-                                    <option value="<?= $template->id ?>"<?=$selected?>><?= $template->name ?></option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-xl-3">
-                        <div class="form-group">
-                            <label for="productId">Товар</label>
-                            <select class="form-control" id="productId" name="filter[product_id]">
-                                <option value="">Не выбран</option>
-                                <?php foreach (Course::getCourseOptions() as $course): ?>
-                                    <option value="<?= $course['product_id']; ?>">
-                                        <?= $course['product_name']; ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-xl-4">
-                        <label>Дата создания</label>
-                        <div class="form-row">
-                            <div class="col-xl-6 form-group">
-                                <input type="date" class="form-control" name="filter[create_date][from]">
+                            <input class="form-control" type="text" id="certificateSearch" name="search_by_email">
+                            <div class="text-right mt-2">
+                                <button class="btn btn-primary" type="button" data-action="search_by_email">Поиск</button>
                             </div>
-                            <div class="col-xl-6 form-group">
-                                <input type="date" class="form-control" name="filter[create_date][to]">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-xl-4">
-                        <label>Дата выдачи</label>
-                        <div class="form-row">
-                            <div class="col-xl-6 form-group">
-                                <input type="date" class="form-control" name="filter[date_issue][from]">
-                            </div>
-                            <div class="col-xl-6 form-group">
-                                <input type="date" class="form-control" name="filter[date_issue][to]">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-xl-3">
-                        <div class="form-group">
-                            <label for="">Кем выдан</label>
-                            <select class="form-control" id="responsiblePersonId" name="filter[responsible_person]">
-                                <option value="">Выберите</option>
-                                <?php foreach (ResponsiblePerson::getResponsiblePersons() as $person): ?>
-                                    <option value="<?= $person->ID ?>"><?= $person->data->user_login ?></option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col form-group" style="padding-top: 24px;">
-                        <div style="margin-top: .5rem; text-align: right">
-                            <button class="btn btn-secondary mr-3" type="button" data-action="reset_filters">Сбросить
-                            </button>
-                            <button class="btn btn-primary" type="button" data-action="apply_filters">Применить</button>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+
         <div class="card shadow mb-4 p-0" style="max-width: 100%">
             <span class="table-loading-icon fas fa-spin fa-spinner"></span>
             <div class="card-header py-3">
@@ -176,10 +219,11 @@ $certificates = $query['result'];
                                             data-action="sortable" data-order-by="graduate_surname">
                                             Отчество
                                         </th>
-                                        <th rowspan="1" colspan="1">Название сертификата</th>
+                                        <th rowspan="1" colspan="1">Название</th>
                                         <th rowspan="1" colspan="1">Дата выдачи</th>
                                         <th rowspan="1" colspan="1">Кем выдан</th>
-                                        <th rowspan="1" colspan="1">Шаблон сертификата</th>
+                                        <th rowspan="1" colspan="1">Шаблон</th>
+                                        <th rowspan="1" colspan="1">Просмотр</th>
                                         <th rowspan="1" colspan="1">Дата создания</th>
                                         <input type="hidden" name="orderby" value="user_login">
                                         <input type="hidden" name="order" value="asc">
@@ -199,10 +243,11 @@ $certificates = $query['result'];
                                         <th rowspan="1" colspan="1">Фамилия</th>
                                         <th rowspan="1" colspan="1">Имя</th>
                                         <th rowspan="1" colspan="1">Отчество</th>
-                                        <th rowspan="1" colspan="1">Название сертификата</th>
+                                        <th rowspan="1" colspan="1">Название</th>
                                         <th rowspan="1" colspan="1">Дата выдачи</th>
                                         <th rowspan="1" colspan="1">Кем выдан</th>
-                                        <th rowspan="1" colspan="1">Шаблон сертификата</th>
+                                        <th rowspan="1" colspan="1">Шаблон</th>
+                                        <th rowspan="1" colspan="1">Просмотр</th>
                                         <th rowspan="1" colspan="1">Дата создания</th>
                                     </tr>
                                     </tfoot>
@@ -272,6 +317,7 @@ $certificates = $query['result'];
     .sorted.desc:after {
         content: "\f0d7";
     }
+
     .sorted.asc:hover:after {
         content: "\f0d7";
     }

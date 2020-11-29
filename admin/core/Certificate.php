@@ -224,6 +224,7 @@ class Certificate
         $orderBy = isset($params['order_by']) ? $params['order_by'] : 'user_login';
         $order = isset($params['order']) ? strtoupper($params['order']) : 'ASC';
         $filter = isset($params['filter']) ? (array)$params['filter'] : null;
+        $email = isset($params['email']) ? $params['email'] : "";
 
         $whereConditions = [];
         foreach ($filter as $key => $value) {
@@ -251,9 +252,13 @@ class Certificate
 
         //construct query
         $count_query = 'SELECT COUNT(*)';
-        $base_query = "SELECT certificate.*, users.`user_login`";
+        $base_query = "SELECT certificate.*, users.`user_login`, users.`user_email`";
         $inner_query = " FROM $tableName AS certificate
             LEFT JOIN $wpdb->users AS users ON certificate.user_id = users.ID";
+        if (!empty($email)) {
+            $whereConditions = [];
+            $whereConditions[] = " users.`user_email` LIKE '%$email%'";
+        }
         $where = empty($whereConditions) ? '' : ' WHERE' . implode(' AND', $whereConditions);
         $order = " ORDER BY $orderBy $order";
         $sql_count_query = $count_query . $inner_query . $where . $order;

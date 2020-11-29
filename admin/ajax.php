@@ -116,7 +116,7 @@ add_action('wp_ajax_ml_get_products_by_category', function () {
     die(json_encode(['html' => ob_get_clean()]));
 });
 
-add_action('wp_ajax_ml_test', function () {
+add_action('wp_ajax_ml_certificate_filtered', function () {
     include PLUGIN_ADMIN_PATH . '/templates/parts/member-certificate-row.php';
     $data = json_decode(stripslashes($_POST['data']));
     $params = [
@@ -124,6 +124,7 @@ add_action('wp_ajax_ml_test', function () {
         'per_page' => $data->per_page,
         'order_by' => $data->orderby,
         'order' => $data->order,
+        'email' => $data->search_by_email,
         'filter' => isset($data->filter) ? $data->filter : null
     ];
     $query = Certificate::query($params);
@@ -146,7 +147,6 @@ add_action('wp_ajax_ml_test', function () {
         'sql' => $query['sql']
     ]));
 });
-
 
 add_action('wp_ajax_ml_delete_certificate', function () {
     $data = json_decode(stripslashes($_POST['data']), true);

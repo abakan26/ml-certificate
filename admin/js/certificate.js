@@ -20,6 +20,7 @@ class CertificateTable {
         this.resetFiltersBtn = this.form.querySelector("[data-action=reset_filters]");
         this.deleteBtn = this.form.querySelector("[data-action=delete]");
         this.setNewTemplateBtn = this.form.querySelector("[data-action=set_new_template]");
+        this.searchBtn = this.form.querySelector("[data-action=search_by_email]");
         this.perPageControl = this.form.querySelector(`[aria-controls=${this.table.id}]`);
         this.state = {};
         this.onCreate();
@@ -46,6 +47,7 @@ class CertificateTable {
         this.deleteBtn.addEventListener("click", event => this.delete());
         this.perPageControl.addEventListener("change", event => this.perPageHandler(event));
         this.setNewTemplateBtn.addEventListener("click", event => this.setNewTemplate(event));
+        this.searchBtn.addEventListener("click", event => this.searchByEmail(event));
         Array.from(this.orders).forEach(
             order => order.addEventListener("click", () => this.orderHandler(order))
         );
@@ -75,6 +77,7 @@ class CertificateTable {
     }
 
     applyFilters() {
+        this.form.elements["search_by_email"].value = "";
         this.setPage(1);
         this.submit();
     }
@@ -89,6 +92,15 @@ class CertificateTable {
         Array.from(this.form.querySelectorAll("[name^=filter]")).forEach(control => control.value = "");
         this.setPage(1);
         this.submit();
+    }
+
+    searchByEmail(event) {
+        let email = this.form.elements["search_by_email"].value;
+        if (email === ""){
+            alert("Введите email");
+            return false;
+        }
+        this.resetFilters();
     }
 
     delete() {
@@ -198,7 +210,7 @@ class CertificateTable {
     submit() {
         this.setViewState("loading");
         this.doActionFromServer({
-            action: "ml_test",
+            action: "ml_certificate_filtered",
             data: JSON.stringify(this.getState()),
             success: data => {
                 this.render(data.html);

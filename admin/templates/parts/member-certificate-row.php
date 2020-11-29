@@ -32,6 +32,13 @@ function renderRow($props, $uniqKey, $return = false)
                 <?= CertificateTemplate::getNameById($props->certificate_template_id) ?>
             </a>
         </td>
+        <td>
+            <a target="_blank"
+                href="<?= admin_url('admin.php?page=ml_certificate_edit&mode=view&certificate_id=' .
+                    $props->certificate_id) ?>">
+                <span class="fa fa-eye"></span>
+            </a>
+        </td>
         <td><?= $props->create_date ?></td>
     </tr>
     <?php if ($return) return ob_get_clean();
