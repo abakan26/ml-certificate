@@ -1,54 +1,22 @@
 <?php
 require 'templates/parts/member-certificate-row.php';
 $pageNum = isset($_GET['page_num']) ? $_GET['page_num'] : 1;
-$filters = isset($_POST['filter']) ? $_POST['filter'] : [];
+$filters = [];
+if(isset($_GET['certificate_template_id']) && !empty($_GET['certificate_template_id'])){
+    $filters['certificate_template_id'] = intval($_GET['certificate_template_id']);
+}
 $perPage = isset($_GET['per_page']) ? intval($_GET['per_page']) : 10;
 $query = Certificate::query([
     'page' => $pageNum,
     'per_page' => $perPage,
-//    'filter' => [
-//        'certificate_template_id' => 11,
-//        'responsible_person' => 1
-//    ]
+    'filter' => $filters
 ]);
 $total = $query['total'];
 $totalPages = $query['total_pages'];
 $certificates = $query['result'];
 
 ?>
-<style>
-    .table-loading {
-        position: relative;
-    }
 
-    .table-loading:after {
-        content: "";
-        position: absolute;
-        z-index: 5;
-        width: 100%;
-        height: 100%;
-        top: 0;
-        left: 0;
-        background: #000;
-        opacity: 0.3;
-    }
-
-    .table-loading-icon {
-        display: none;
-    }
-
-    .table-loading .table-loading-icon {
-        display: inline;
-        font-size: 50px;
-        color: #fff;
-        position: absolute;
-        z-index: 10;
-        width: 50px;
-        height: 50px;
-        top: calc(50% - 25px);
-        left: calc(50% - 25px);
-    }
-</style>
 <div class="container-fluid">
     <form id="filterForm">
         <div class="card p-0" style="max-width: 1200px">
@@ -71,7 +39,13 @@ $certificates = $query['result'];
                                     name="filter[certificate_template_id]">
                                 <option value="">Не выбран</option>
                                 <?php foreach (CertificateTemplate::getCertificateTemplates() as $template): ?>
-                                    <option value="<?= $template->id ?>"><?= $template->name ?></option>
+                                    <?php
+                                    $selected = '';
+                                    if (isset($filters['certificate_template_id']) &&
+                                     $filters['certificate_template_id'] === $template->id) {
+                                        $selected =' selected';
+                                    } ?>
+                                    <option value="<?= $template->id ?>"<?=$selected?>><?= $template->name ?></option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
@@ -178,7 +152,7 @@ $certificates = $query['result'];
                         </div>
                         <div class="row">
                             <div class="col-sm-12">
-                                <table class="table table-bordered dataTable" id="dataTable" width="100%"
+                                <table class="table table-hover table-bordered dataTable" id="dataTable" width="100%"
                                        cellspacing="0" role="grid" aria-describedby="dataTable_info"
                                        style="width: 100%;">
                                     <thead>
@@ -304,75 +278,6 @@ $certificates = $query['result'];
 
     .sorted.desc:hover:after {
         content: "\f0d8";
-    }
-
-
-    table.dataTable {
-        clear: both;
-        margin-top: 6px !important;
-        margin-bottom: 6px !important;
-        max-width: none !important;
-        border-spacing: 0;
-    }
-
-    div.dataTables_wrapper div.dataTables_info {
-        padding-top: 0.85em;
-        white-space: nowrap;
-    }
-
-    div.dataTables_wrapper div.dataTables_paginate {
-        margin: 0;
-        white-space: nowrap;
-        text-align: right;
-    }
-
-    div.dataTables_wrapper div.dataTables_paginate ul.pagination {
-        margin: 2px 0;
-        white-space: nowrap;
-        justify-content: flex-end;
-    }
-
-    .card-body {
-        flex: 1 1 auto;
-        min-height: 1px;
-        padding: 1.25rem;
-    }
-
-    div.table-responsive > div.dataTables_wrapper > div.row > div[class^="col-"]:last-child {
-        padding-right: 0;
-    }
-
-    div.table-responsive > div.dataTables_wrapper > div.row > div[class^="col-"]:first-child {
-        padding-left: 0;
-    }
-
-    div.table-responsive > div.dataTables_wrapper > div.row {
-        margin: 0;
-    }
-
-    div.dataTables_wrapper div.dataTables_length label {
-        font-weight: normal;
-        text-align: left;
-        white-space: nowrap;
-    }
-
-    div.dataTables_wrapper div.dataTables_length select {
-        width: auto;
-        display: inline-block;
-    }
-
-    div.dataTables_wrapper div.dataTables_filter input {
-        margin-left: 0.5em;
-        display: inline-block;
-        width: auto;
-    }
-
-    div.dataTables_wrapper div.dataTables_filter {
-        text-align: right;
-    }
-
-    .dataTable.table td, .dataTable.table th {
-        padding: 0.45rem;
     }
 
     input[type=date].form-control {

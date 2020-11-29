@@ -171,4 +171,19 @@ add_action('wp_ajax_ml_update_certificates_template_id', function () {
         'status' => 'success'
     ]));
 });
+
+add_action('wp_ajax_ml_delete_certificate_template', function () {
+    $certificate_template_id = intval($_POST['id']);
+    if (!CertificateTemplate::isAccessToDelete($certificate_template_id)) {
+        die(json_encode([
+            'status' => 'error',
+            'message' => 'Нет разрешения на удаление'
+        ]));
+    }
+    CertificateTemplate::delete($certificate_template_id);
+    die(json_encode([
+        'status' => 'success',
+        'id' => $certificate_template_id
+    ]));
+});
 ?>

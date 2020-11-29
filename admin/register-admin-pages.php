@@ -110,6 +110,7 @@ function load_ml_certificate_edit()
     add_action('admin_enqueue_scripts', function () {
         wp_enqueue_script("formToObject", plugins_url('js/formToObject.min.js', __FILE__), false, random_int(1, 100));
         wp_enqueue_script("certificate", plugins_url('js/certificate.js', __FILE__), ['formToObject'], random_int(1, 100));
+        wp_enqueue_style('ml-style', plugins_url('css/style.css', __FILE__));
     });
 }
 

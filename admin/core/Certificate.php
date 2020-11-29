@@ -272,7 +272,7 @@ class Certificate
             'page_num' => $pageNum,
             'per_page' => $perPage,
             'total_pages' => $totalPages,
-            'total' => $total,
+            'total' => intval($total),
             'sql' => $sql_query
         ];
     }

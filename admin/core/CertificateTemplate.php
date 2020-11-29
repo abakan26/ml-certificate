@@ -190,4 +190,27 @@ class CertificateTemplate
         WHERE certificate_template_id = $id" );
     }
 
+    public static function delete(int $id){
+        global $wpdb;
+        $wpdb->query("DELETE FROM {$wpdb->prefix}" . self::TABLE_NAME . " WHERE certificate_template_id = $id");
+    }
+
+    public static function isAccessToDelete(int $id)
+    {
+        $certificates = Certificate::query([
+            'filter' => ['certificate_template_id' =>  $id]
+        ]);
+        $products = get_posts([
+            'post_type' => 'product',
+            'meta_query' => [
+                [
+                    'key' => 'template_id',
+                    'value' => $id
+                ]
+            ]
+
+        ]);
+        return empty(count($products)) && empty($certificates['total']);
+    }
+
 }
