@@ -55,6 +55,7 @@ class Coach
      * @return WP_Post
      */
 
+    //TODO DRY
     public function getCourseByWmpLevel(int $CourseWpmLevel)
     {
          $courses = get_posts([

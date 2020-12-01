@@ -7,6 +7,7 @@ add_action( 'profile_update',  'updateCustomerFieldInCertificate', 10, 1);
 
 function view_user_profile_available_certificates_no_admin($profileuser)
 {
+    /*
     $userID = $profileuser->ID;
     
     $certificates = array_map(function ($certificate) use ($userID){
@@ -29,6 +30,50 @@ function view_user_profile_available_certificates_no_admin($profileuser)
             $generator->render();
             exit();
         }
+    }
+    include 'templates/profile.php';
+    */
+    $userID = $profileuser->ID;
+    $certificates = array_map(function ($certificate) use ($userID){
+        if ($certificate->id !== 0) {
+            return [
+                'text' => $certificate->certificate_name,
+                'view' => admin_url( 'profile.php' ) . '?certificate_id=' . $certificate->id,
+                'download' => admin_url( 'profile.php' ) . '?certificate_id='. $certificate->id.'&download=1',
+            ];
+        }
+        return [
+            'text' => $certificate->certificate_name,
+            'view' => admin_url( 'profile.php' ) . '?autogen=1&prid=' . $certificate->product_id,
+            'download' => admin_url( 'profile.php' ) . '?autogen=1&download=1&prid=' . $certificate->product_id,
+        ];
+
+    }, array_merge(Certificate::getCustomerCertificates($profileuser->ID), getCustomerAutoCertificates($profileuser->ID)));
+
+    if (isset($_GET['certificate_id']) && !empty($_GET['certificate_id'])) {
+        $certificate_id = intval($_GET['certificate_id']);
+        if(Certificate::isCustomerCertificate($userID, $certificate_id)){
+            $certificate = Certificate::getCertificate($certificate_id);
+            $generator = CertificateGenerator::getCertificateGeneratorByCertificate($certificate);
+            if (isset($_GET['download']) && !empty($_GET['download'])) {
+                $generator->render('certificate.pdf',  CertificateGenerator::DOWNLOAD);
+                exit();
+            }
+            $generator->render();
+            exit();
+        }
+    } else if (isset($_GET['prid']) && !empty($_GET['prid']) ){
+        $certificate = Certificate::autoGenerateCertificate([
+            'user_id' => $userID,
+            'product_id' => intval($_GET['prid']),
+        ]);
+        $generator = CertificateGenerator::getCertificateGeneratorByCertificate($certificate);
+        if (isset($_GET['download']) && !empty($_GET['download'])) {
+            $generator->render('certificate.pdf',  CertificateGenerator::DOWNLOAD);
+            exit();
+        }
+        $generator->render();
+        exit();
     }
     include 'templates/profile.php';
 }

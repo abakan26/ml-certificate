@@ -36,7 +36,6 @@ class Certificate
         string $course_name
     )
     {
-        global $wpdb;
         $this->id = $id;
         $this->certificate_name = $certificate_name;
         $this->user_id = $user_id;
@@ -280,5 +279,30 @@ class Certificate
             'total' => intval($total),
             'sql' => $sql_query
         ];
+    }
+
+    public static function autoGenerateCertificate($param)
+    {
+        $productId = intval($param['product_id']);
+        $userId = intval($param['user_id']);
+        $product = get_post($productId);
+        var_dump($productId);
+        var_dump( get_post_meta($productId, 'course_name', true));
+        return new Certificate(
+            0,
+            $product->post_excerpt,
+            $userId,
+            (int)get_post_meta($productId, 'template_id', true),
+            $productId,
+            get_user_meta($userId, 'first_name', true),
+            get_user_meta($userId, 'last_name', true),
+            get_user_meta($userId, 'surname', true),
+        '',
+            get_post_meta($productId, 'certificate_series', true),
+            Certificate::generateCertificateNumber($userId),
+        1,
+        '',
+            get_post_meta($productId, 'course_name', true)
+        );
     }
 }
