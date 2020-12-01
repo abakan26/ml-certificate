@@ -1,6 +1,7 @@
 <?php
 /**
  * @global array $categoryOptions
+ * @global array $courseOptions
  * @global bool $isCoach
  */
 ?>
@@ -10,10 +11,17 @@
         Выберите в выпадающем списке онлайн-курс. Нажмите кнопку "выбрать" и в таблице появиться список обучающихся.
     </p>
     <div class="tablenav top">
+        <form id="usersByWmpLevel">
         <?php if($isCoach): ?>
-
+            <select class="form-control d-inline-block" required name="product_id" id="product_id">
+                <option value="" selected="selected">Выбрать курс</option>
+                <?php foreach ($courseOptions as $course): ?>
+                    <option value="<?= $course->ID; ?>">
+                        <?= $course->post_title; ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
         <?php else: ?>
-            <form id="usersByWmpLevel">
                 <select class="form-control d-inline-block" name="category_id" id="category_id">
                     <option value="" selected="selected">Выбрать категорию товара</option>
                     <?php foreach ($categoryOptions as $category): ?>
@@ -22,15 +30,13 @@
                         </option>
                     <?php endforeach; ?>
                 </select>
-                <select class="form-control d-inline-block" required name="product_id" id="product_id">
-
-                </select>
-                <input type="hidden" name="action" value="ml_select_user">
-                <input type="hidden" name="orderby" value="user_login">
-                <input type="hidden" name="order" value="asc">
-                <input type="submit" id="ml_select_user" class="btn btn-success" value="Выбрать">
-            </form>
+                <select class="form-control d-inline-block" required name="product_id" id="product_id"></select>
         <?php endif ?>
+            <input type="hidden" name="action" value="ml_select_user">
+            <input type="hidden" name="orderby" value="user_login">
+            <input type="hidden" name="order" value="asc">
+            <input type="submit" id="ml_select_user" class="btn btn-success" value="Выбрать">
+        </form>
     </div>
     <div id="alertError" class="alert alert-danger mt-4" role="alert" style="display: none">
     </div>

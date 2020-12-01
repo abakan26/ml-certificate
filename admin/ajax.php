@@ -26,6 +26,8 @@ function customerHasCertificate($userId, $productId)
 }
 
 add_action('wp_ajax_ml_select_user', function () {
+    $user = get_user_by('ID', get_current_user_id());
+    $isCoach = in_array('coach', $user ->roles);
     $productId = intval($_POST['product_id']);
     $levelId = (int)get_post_meta($productId, '_mbl_key_pin_code_level_id', true);
     $users = getUsersByWPMLevelId($levelId);
@@ -42,7 +44,13 @@ add_action('wp_ajax_ml_select_user', function () {
                 <input type="checkbox" name="users[]" id="user_<?= $userId ?>" value="<?= $userId ?>">
             </th>
             <td class="username column-username has-row-actions column-primary">
-                <a href='<?= get_edit_user_link($userId); ?>'><?= $user->user_login; ?></a>
+                <?php if( $isCoach ): ?>
+                    <?= $user->user_login; ?>
+                 <?php else: ?>
+                    <a href='<?= get_edit_user_link($userId); ?>'>
+                        <?= $user->user_login; ?>
+                    </a>
+                <?php endif ?>
             </td>
             <td class="name column-name">
                 <strong>
