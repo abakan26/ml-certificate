@@ -43,6 +43,7 @@ function enqueue_script_graduates_page()
 
 function enqueue_script_graduates_page_bootstrap()
 {
+    wp_enqueue_style('ml-style', plugins_url('css/style.css', __FILE__), ['ml-fontawesome', 'ml-fontawesome']);
     wp_enqueue_style('ml-bootstrap', 'https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css');
     wp_enqueue_style('ml-fontawesome', PLUGIN_ADMIN_URI . '/css/font-awesome-5.15.1.min.css');
     wp_enqueue_script('ml-popper', 'https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js');
@@ -79,7 +80,7 @@ function add_admin_menu_certificate_templates_submenu_page()
     $my_page = add_submenu_page('ml_graduates',
         'Список шаблонов сертификатов',
         'Список шаблонов сертификатов',
-        CERTIFICATE_TEMPLATES_EDIT,
+        CERTIFICATE_EDIT,
         'ml_certificate_templates',
         'render_certificate_templates'
     );

@@ -1,111 +1,155 @@
 <?php
 /**
  * @global array $categoryOptions
+ * @global bool $isCoach
  */
 ?>
-<?php
+<div class="container-fluid">
+    <h1 class="mt-4">Выдача сертификатов</h1>
+    <p class="text">
+        Выберите в выпадающем списке онлайн-курс. Нажмите кнопку "выбрать" и в таблице появиться список обучающихся.
+    </p>
+    <div class="tablenav top">
+        <?php if($isCoach): ?>
 
+        <?php else: ?>
+            <form id="usersByWmpLevel">
+                <select class="form-control d-inline-block" name="category_id" id="category_id">
+                    <option value="" selected="selected">Выбрать категорию товара</option>
+                    <?php foreach ($categoryOptions as $category): ?>
+                        <option value="<?= $category['id']; ?>">
+                            <?= $category['name']; ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+                <select class="form-control d-inline-block" required name="product_id" id="product_id">
 
-?>
-<style>
-    th.sortable > span,  th.sorted > span{
-        display: block;
-        overflow: hidden;
-        padding: 8px;
-    }
-    th.sortable .sorting-indicator, th.sorted .sorting-indicator{
-        float: left;
-        cursor: pointer;
-    }
-    th.sorted .sorting-indicator {
-        visibility: visible;
-    }
-</style>
-<h1>Выдача сертификатов</h1>
-<p class="text">
-    Выберите в выпадающем списке онлайн-курс. Нажмите кнопку "выбрать" и в таблице появиться список обучающихся.
-</p>
-<div class="tablenav top">
-    <form id="usersByWmpLevel">
-        <select name="category_id" id="category_id">
-            <option value="">Выбрать категорию товара</option>
-            <?php foreach ($categoryOptions as $category): ?>
-                <option value="<?= $category['id']; ?>">
-                    <?= $category['name']; ?>
-                </option>
-            <?php endforeach; ?>
-        </select>
-        <select required name="product_id" id="product_id" style="display:inline-block; float:none;">
-        </select>
-        <input type="hidden" name="action" value="ml_select_user">
-        <input type="hidden" name="orderby" value="user_login">
-        <input type="hidden" name="order" value="asc">
-        <input type="submit" id="ml_select_user" class="button" value="Выбрать">
+                </select>
+                <input type="hidden" name="action" value="ml_select_user">
+                <input type="hidden" name="orderby" value="user_login">
+                <input type="hidden" name="order" value="asc">
+                <input type="submit" id="ml_select_user" class="btn btn-success" value="Выбрать">
+            </form>
+        <?php endif ?>
+    </div>
+    <div id="alertError" class="alert alert-danger mt-4" role="alert" style="display: none">
+    </div>
+    <div id="alertSuccess" class="alert alert-success mt-4" role="alert" style="display: none">
+        Сертификат успешно присвоен
+    </div>
+    <form id="usersSetCertificate" class="needs-validation mt-2" novalidate>
+
+        <div class="card shadow mb-4 p-0" style="max-width: 100%">
+            <span class="table-loading-icon fas fa-spin fa-spinner"></span>
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <div class="h-auto ">
+                        <label for="date">Дата присвоения сертификата</label>
+                        <input id="date" type="date" name="date_issue" required class="form-control"
+                               style="display: inline-block;width: 200px;">
+                        <input type="hidden" id="product_id_users" name="product_id" value="">
+                        <input type="hidden" name="action" value="ml_certificate_delivery">
+                        <input type="submit" value="Присвоить сертификат" class="btn btn-primary">
+                    </div>
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <div id="dataTable_wrapper" class="dataTables_wrapper dt-bootstrap4">
+
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <table class="table table-hover table-bordered dataTable" id="dataTable" width="100%"
+                                       cellspacing="0" role="grid" aria-describedby="dataTable_info"
+                                       style="width: 100%;">
+                                    <thead>
+                                    <tr role="row">
+                                        <th id="cb" class="manage-column column-cb check-column">
+                                            <input id="cb-select-all-1" type="checkbox">
+                                        </th>
+                                        <th scope="col" id="user_login" data-orderby="user_login"
+                                            class="manage-column column-username column-primary sorted asc">
+                                            Имя пользователя
+                                        </th>
+                                        <th scope="col" id="last_name" class="manage-column column-primary sortable desc"
+                                            data-orderby="last_name">
+                                            Фамилия
+                                        </th>
+                                        <th scope="col" id="first_name"
+                                            class="manage-column column-primary sortable desc" data-orderby="first_name">
+                                            Имя
+                                        </th>
+                                        <th scope="col" id="surname" class="manage-column column-primary sortable desc"
+                                            data-orderby="surname">
+                                            Отчество
+                                        </th>
+                                    </tr>
+                                    </thead>
+
+                                    <tbody id="the-list">
+
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </form>
 </div>
-<div id="alertError" class="alert alert-danger mt-2" role="alert" style="display: none">
-</div>
-<div id="alertSuccess" class="alert alert-success mt-2" role="alert" style="display: none">
-    Сертификат успешно присвоен
-</div>
-<form id="usersSetCertificate" class="needs-validation mt-2" novalidate>
-    <div class="tablenav top" style="height: auto">
-        <label for="date">Дата присвоения сертификата</label>
-        <input id="date" type="date" name="date_issue" required class="form-control" style="display: inline-block;
-    width: 200px;">
-        <input type="hidden" id="product_id_users" name="product_id" value="">
-        <input type="hidden" name="action" value="ml_certificate_delivery">
-        <input type="submit" value="Присвоить сертификат" class="button">
-    </div>
-    <table class="wp-list-table widefat fixed striped table-view-list users">
-        <thead>
-        <tr>
-            <td id="cb" class="manage-column column-cb check-column">
-                <label class="screen-reader-text" for="cb-select-all-1">
-                    Выделить все
-                </label>
-                <input id="cb-select-all-1" type="checkbox">
-            </td>
-            <th scope="col" id="user_login" class="manage-column column-username column-primary sortable asc">
-                <span data-orderby="user_login">
-                    <span>Имя пользователя</span><span class="sorting-indicator"></span>
-                </span>
-            </th>
-            <th scope="col" id="last_name" class="manage-column column-primary sortable asc">
-                <span data-orderby="last_name">
-                    <span>Фамилия</span><span class="sorting-indicator"></span>
-                </span>
-            </th>
-            <th scope="col" id="first_name" class="manage-column column-primary sortable asc">
-                <span data-orderby="first_name">
-                    <span>Имя</span><span class="sorting-indicator"></span>
-                </span>
-            </th>
-            <th scope="col" id="surname" class="manage-column column-primary sortable asc">
-                <span data-orderby="surname">
-                    <span>Отчество</span><span class="sorting-indicator"></span>
-                </span>
-            </th>
-        </tr>
-        </thead>
-        <tbody id="the-list">
+<style>
+    .sortable, .sorted {
+        cursor: pointer;
+        font-size: 14px;
+    }
 
-        </tbody>
-<!--        <tfoot>-->
-<!--        <tr>-->
-<!--            <td class="manage-column column-cb check-column">-->
-<!--                <label class="screen-reader-text" for="cb-select-all-2">Выделить-->
-<!--                    все</label><input id="cb-select-all-2" type="checkbox">-->
-<!--            </td>-->
-<!--            <th scope="col" class="manage-column column-username column-primary sortable desc">-->
-<!--                <span>Имя пользователя</span>-->
-<!--            </th>-->
-<!--            <th scope="col" class="manage-column column-name">Имя</th>-->
-<!--        </tr>-->
-<!--        </tfoot>-->
+    .sortable:after, .sorted:after {
+        font-family: "Font Awesome 5 Free";
+        float: right;
+    }
 
-    </table>
-</form>
+    .sortable:after {
+        display: none;
+    }
+
+    .sorted:after {
+        display: inline-block;
+    }
+
+    .sortable:hover:after {
+        display: inline-block;
+    }
+
+    .sortable.asc:hover:after {
+        content: "\f0d8";
+    }
+
+    .sortable.desc:hover:after {
+        content: "\f0d7";
+    }
+
+    .sorted.asc:after {
+        content: "\f0d8";
+    }
+
+    .sorted.desc:after {
+        content: "\f0d7";
+    }
+
+    .sorted.asc:hover:after {
+        content: "\f0d7";
+    }
+
+    .sorted.desc:hover:after {
+        content: "\f0d8";
+    }
+
+    input[type=date].form-control {
+        height: calc(1.5em + .75rem + 0px) !important;
+    }
+</style>
 <script>
     (function ($) {
         let form = document.getElementById('usersByWmpLevel');
@@ -165,23 +209,22 @@
 
         function doOrder(event) {
             resetOrder();
-            let parent = $(this).parent();
             let orderby = $(this).attr('data-orderby');
-            let oldOrder = parent.hasClass('asc') ? 'asc' : 'desc';
-            let newOrder = parent.hasClass('asc') ? 'desc' : 'asc';
-            $(parent).removeClass(`${oldOrder} sortable`);
-            $(parent).addClass(`${newOrder} sorted`);
+            let oldOrder = $(this).hasClass('asc') ? 'asc' : 'desc';
+            let newOrder = $(this).hasClass('asc') ? 'desc' : 'asc';
+            $(this).removeClass(`${oldOrder} sortable`);
+            $(this).addClass(`${newOrder} sorted`);
             $('[name="orderby"]').val(orderby);
             $('[name="order"]').val(newOrder);
             getUserByWmpLevel(form, table);
         }
 
         function resetOrder() {
-            jQuery('[data-orderby]').parent().addClass('sortable');
-            jQuery('[data-orderby]').parent().removeClass('sorted');
+            jQuery('[data-orderby]').addClass('sortable');
+            jQuery('[data-orderby]').removeClass('sorted');
         }
 
-        function getUserByWmpLevel(form, table){
+        function getUserByWmpLevel(form, table) {
             $.ajax({
                 url: ajaxurl,
                 method: 'POST',
