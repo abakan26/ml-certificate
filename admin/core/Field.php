@@ -15,7 +15,7 @@ class Field
     public $color = '#000000';
     public $font_family = 'opensans';
     public $line_height = 14;
-    public $example_text= '';
+    public $example_text = '';
 
     public function __construct(
         string $name,
@@ -34,6 +34,39 @@ class Field
         $this->color = $params['color'];
         $this->font_family = $params['font_family'];
         $this->line_height = $params['line_height'];
-        $this->example_text= $params['example_text'];
+        $this->example_text = $params['example_text'];
+    }
+
+    /**
+     * @return string
+     */
+    public function getCode(): string
+    {
+        return $this->code;
+    }
+
+    /**
+     * @return string
+     */
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    public static function getFieldByCode($code)
+    {
+        global $FIELDS;
+        foreach ($FIELDS as $field) {
+            if ($field->code === $code) return $field;
+        }
+        return false;
+    }
+
+    /**
+     * @param string $name
+     */
+    public function setName(string $name)
+    {
+        $this->name = $name;
     }
 }

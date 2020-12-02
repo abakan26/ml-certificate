@@ -21,10 +21,13 @@ if (isset($_GET['add']) && $_GET['add'] = 'certificate') {
     $content = $certificate->getContent();
     $data['image'] = $certificate->getImgSrc();
     $fields = [];
-
     /* TODO связать с глобальной настройкой $FIELDS*/
-    foreach ($certificate->getFields() as $code => $field) {
-        $fields[] = new Field($field->name, $code, (array)$field);
+    foreach ($certificate->getFields() as $field) {
+        $globalField = Field::getFieldByCode($field->getCode());
+        if($globalField->getName() !== $field->getName()) {
+            $field->setName($globalField->getName());
+        }
+        $fields[] = $field;
     }
     /* TODO */
 

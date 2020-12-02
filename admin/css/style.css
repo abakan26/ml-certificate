@@ -1,23 +1,3 @@
-@font-face {
-    font-family: 'opensans';
-    src: url('../fonts/OpenSans-Bold.eot');
-    src: local('Open Sans Bold'), local('OpenSans-Bold'),
-    url('../fonts/OpenSans-Bold.eot?#iefix') format('embedded-opentype'),
-    url('../fonts/OpenSans-Bold.woff') format('woff'),
-    url('../fonts/OpenSans-Bold.ttf') format('truetype');
-    font-weight: bold;
-    font-style: normal;
-}
-@font-face {
-    font-family: 'opensans';
-    src: url('../fonts/OpenSans-Regular.eot');
-    src: local('Open Sans Regular'), local('OpenSans-Regular'),
-    url('../fonts/OpenSans-Regular.eot?#iefix') format('embedded-opentype'),
-    url('../fonts/OpenSans-Regular.woff') format('woff'),
-    url('../fonts/OpenSans-Regular.ttf') format('truetype');
-    font-weight: normal;
-    font-style: normal;
-}
 .parent {
     position: absolute;
     background-repeat: no-repeat;

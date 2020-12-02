@@ -69,7 +69,7 @@ class CertificateGenerator
 
         try {
 
-            $stylesheet = file_get_contents(PLUGIN_ADMIN_PATH . '/css/style.css');
+            $stylesheet = file_get_contents(PLUGIN_ADMIN_PATH . '/css/fonts.css');
             $mpdf->WriteHTML($stylesheet, \Mpdf\HTMLParserMode::HEADER_CSS);
             $mpdf->BeginLayer(1);
             $mpdf->WriteHTML($this->getImage($image_src), \Mpdf\HTMLParserMode::HTML_BODY);

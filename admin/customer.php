@@ -82,7 +82,6 @@ function getCustomerAutoCourses(int $customerId)
                 ]
             ]
         ]);
-        var_dump($courses[0]->ID);
         if (count($courses)) $courseOnBuy[] = $courses[0];
 
     }

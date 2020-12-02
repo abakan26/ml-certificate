@@ -36,7 +36,10 @@ class CertificateTemplate
         if (!empty($this->fields)) {
             return $this->fields;
         }
-        $this->fields = (array)$this->getContent()->fields;
+        foreach ((array)$this->getContent()->fields as $code => $field) {
+            $this->fields[] = new Field($field->name, $code, (array)$field);
+        }
+
         return $this->fields;
     }
 

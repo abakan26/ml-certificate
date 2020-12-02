@@ -286,8 +286,6 @@ class Certificate
         $productId = intval($param['product_id']);
         $userId = intval($param['user_id']);
         $product = get_post($productId);
-        var_dump($productId);
-        var_dump( get_post_meta($productId, 'course_name', true));
         return new Certificate(
             0,
             $product->post_excerpt,
