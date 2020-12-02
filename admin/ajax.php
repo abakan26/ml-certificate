@@ -30,7 +30,8 @@ add_action('wp_ajax_ml_select_user', function () {
     $isCoach = in_array('coach', $user ->roles);
     $productId = intval($_POST['product_id']);
     $levelId = (int)get_post_meta($productId, '_mbl_key_pin_code_level_id', true);
-    $users = getUsersByWPMLevelId($levelId);
+    $active = isset($_POST['active_wpmlevel']);
+    $users = getUsersByWPMLevelId($levelId, $active);
 
     ob_start();
     foreach ($users as $userObj):
@@ -195,5 +196,13 @@ add_action('wp_ajax_ml_delete_certificate_template', function () {
         'status' => 'success',
         'id' => $certificate_template_id
     ]));
+});
+
+add_action('wp_ajax_ml_save_day_after_course_end', function (){
+    if (!isset($_POST['day_number'])){
+        die(json_encode(['status' => 'error', 'message' => 'Не указано количество дней']));
+    }
+    update_option( 'ml_day_after_course_end', intval($_POST['day_number']), 'no');
+    die(json_encode(['status' => 'success']));
 });
 ?>

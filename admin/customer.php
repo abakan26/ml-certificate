@@ -1,14 +1,18 @@
 <?php
-function getUsersByWPMLevelId($wpmLevelID)
+function getUsersByWPMLevelId($wpmLevelID, $active = true)
 {
     global $wpdb;
-
-
-    $memberLuxTermKeys = $wpdb->get_results("
-        SELECT *
+    $sql = '';
+    $dayAfterEndCourse = get_option('ml_day_after_course_end') ? get_option('ml_day_after_course_end') : 0;
+    $baseSql = "SELECT *
         FROM `{$wpdb->prefix}memberlux_term_keys`
-        WHERE term_id = $wpmLevelID AND user_id != 'NULL' AND date_end >= CURDATE()
-    ");
+        WHERE term_id = $wpmLevelID AND user_id != 'NULL'
+    ";
+    $sql = $baseSql;
+    if ($active) {
+        $sql .=  " AND date_end >= CURDATE() - INTERVAL $dayAfterEndCourse DAY";
+    }
+    $memberLuxTermKeys = $wpdb->get_results($sql);
     $userIds = array_map(function ($memberLuxTermKey) {
         return intval($memberLuxTermKey->user_id);
     }, $memberLuxTermKeys);

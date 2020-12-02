@@ -79,8 +79,8 @@ add_action('admin_menu', 'add_admin_menu_certificate_templates_submenu_page');
 function add_admin_menu_certificate_templates_submenu_page()
 {
     $my_page = add_submenu_page('ml_graduates',
-        'Список шаблонов сертификатов',
-        'Список шаблонов сертификатов',
+        'Шаблоны сертификатов',
+        'Шаблоны сертификатов',
         CERTIFICATE_EDIT,
         'ml_certificate_templates',
         'render_certificate_templates'

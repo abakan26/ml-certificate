@@ -5,11 +5,79 @@
  * @global bool $isCoach
  */
 ?>
+<style>
+    .tablenav {
+        height: auto;
+    }
+    .sortable, .sorted {
+        cursor: pointer;
+        font-size: 14px;
+    }
+
+    .sortable:after, .sorted:after {
+        font-family: "Font Awesome 5 Free";
+        float: right;
+    }
+
+    .sortable:after {
+        display: none;
+    }
+
+    .sorted:after {
+        display: inline-block;
+    }
+
+    .sortable:hover:after {
+        display: inline-block;
+    }
+
+    .sortable.asc:hover:after {
+        content: "\f0d8";
+    }
+
+    .sortable.desc:hover:after {
+        content: "\f0d7";
+    }
+
+    .sorted.asc:after {
+        content: "\f0d8";
+    }
+
+    .sorted.desc:after {
+        content: "\f0d7";
+    }
+
+    .sorted.asc:hover:after {
+        content: "\f0d7";
+    }
+
+    .sorted.desc:hover:after {
+        content: "\f0d8";
+    }
+
+    input[type=date].form-control {
+        height: calc(1.5em + .75rem + 0px) !important;
+    }
+</style>
 <div class="container-fluid">
     <h1 class="mt-4">Выдача сертификатов</h1>
     <p class="text">
         Выберите в выпадающем списке онлайн-курс. Нажмите кнопку "выбрать" и в таблице появиться список обучающихся.
     </p>
+    <?php if(!$isCoach):?>
+        <form id="mlDayAfterCourseEndForm">
+            <div class="form-group">
+                <input type="hidden" name="action" value="ml_save_day_after_course_end">
+                <input type="number" id="mlDayAfterCourseEnd" value="<?= get_option('ml_day_after_course_end') ?>"
+                       name="day_number" class="form-control d-inline-block" style="width: 70px;">
+                <button type="submit" name="submit" class="btn">
+                    <span class="fa fa-save"></span>
+                </button>
+                <label for="mlDayAfterCourseEnd" class="form-check-label">
+                    Выводить кураторам студентов с датой окончания уровня доступа + X дней</label>
+            </div>
+        </form>
+    <?php endif; ?>
     <div class="tablenav top">
         <form id="usersByWmpLevel">
         <?php if($isCoach): ?>
@@ -22,15 +90,19 @@
                 <?php endforeach; ?>
             </select>
         <?php else: ?>
-                <select class="form-control d-inline-block" name="category_id" id="category_id">
-                    <option value="" selected="selected">Выбрать категорию товара</option>
-                    <?php foreach ($categoryOptions as $category): ?>
-                        <option value="<?= $category['id']; ?>">
-                            <?= $category['name']; ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-                <select class="form-control d-inline-block" required name="product_id" id="product_id"></select>
+            <select class="form-control d-inline-block" name="category_id" id="category_id">
+                <option value="" selected="selected">Выбрать категорию товара</option>
+                <?php foreach ($categoryOptions as $category): ?>
+                    <option value="<?= $category['id']; ?>">
+                        <?= $category['name']; ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+            <select class="form-control d-inline-block" required name="product_id" id="product_id"></select>
+            <div class="form-check-inline">
+                <input type="checkbox" id="activeWPMLevel" name="active_wpmlevel" checked value="active-wpmlevel">
+                <label for="activeWPMLevel" class="form-check-label">Только активные уровни доступа</label>
+            </div>
         <?php endif ?>
             <input type="hidden" name="action" value="ml_select_user">
             <input type="hidden" name="orderby" value="user_login">
@@ -105,57 +177,7 @@
 
     </form>
 </div>
-<style>
-    .sortable, .sorted {
-        cursor: pointer;
-        font-size: 14px;
-    }
 
-    .sortable:after, .sorted:after {
-        font-family: "Font Awesome 5 Free";
-        float: right;
-    }
-
-    .sortable:after {
-        display: none;
-    }
-
-    .sorted:after {
-        display: inline-block;
-    }
-
-    .sortable:hover:after {
-        display: inline-block;
-    }
-
-    .sortable.asc:hover:after {
-        content: "\f0d8";
-    }
-
-    .sortable.desc:hover:after {
-        content: "\f0d7";
-    }
-
-    .sorted.asc:after {
-        content: "\f0d8";
-    }
-
-    .sorted.desc:after {
-        content: "\f0d7";
-    }
-
-    .sorted.asc:hover:after {
-        content: "\f0d7";
-    }
-
-    .sorted.desc:hover:after {
-        content: "\f0d8";
-    }
-
-    input[type=date].form-control {
-        height: calc(1.5em + .75rem + 0px) !important;
-    }
-</style>
 <script>
     (function ($) {
         let form = document.getElementById('usersByWmpLevel');
@@ -240,6 +262,25 @@
                     let productId = jQuery('#product_id option:selected').val();
                     $('#product_id_users').val(productId);
                     table.innerHTML = JSON.parse(response).html;
+                }
+            })
+        }
+
+
+        $("#mlDayAfterCourseEndForm").on("submit", saveDayAfterCourseEnd);
+        function saveDayAfterCourseEnd(event) {
+            event.preventDefault();
+            $.ajax({
+                url: ajaxurl,
+                type: 'POST',
+                data: $(this).serialize(),
+                success: function (json) {
+                    let data = JSON.parse(json);
+                    if (data.status === "success"){
+                        alert("Настройка сохранена");
+                    } else {
+                        alert("Произошла ошибка");
+                    }
                 }
             })
         }
