@@ -112,10 +112,12 @@ add_action('wp_ajax_ml_certificate_delivery', function () {
 });
 
 add_action('wp_ajax_ml_get_products_by_category', function () {
+    $isAdmin = current_user_can('manage_options');
+    $autoIssue = $isAdmin;
     ob_start();
     ?>
     <option value="">Выбрать товар</option>
-    <?php foreach (Course::getCourseOptions(intval($_POST['category_id'])) as $course): ?>
+    <?php foreach (Course::getCourseOptions(intval($_POST['category_id']), $autoIssue) as $course): ?>
         <option value="<?= $course['product_id']; ?>">
             <?= $course['product_name']; ?>
         </option>
