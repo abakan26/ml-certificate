@@ -33,7 +33,7 @@ function enqueue_script_graduates_page()
 {
     wp_enqueue_style('font-awesome', 'https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css');
     wp_enqueue_style('jquery-ui', plugins_url('css/jquery-ui.min.css', __FILE__));
-    wp_enqueue_style('ml-style', plugins_url('css/style.css', __FILE__));
+    wp_enqueue_style('ml-style', plugins_url('css/style.css', __FILE__), null, 2);
     wp_enqueue_style('ml-bootstrap', 'https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css');
 
     wp_enqueue_script("jquery", plugins_url('js/jquery-3.5.1.min.js', __FILE__));

@@ -78,7 +78,9 @@ body{
     width: 20px;
     font-size: 22px;
 }
-
+.card.root {
+    background-color: transparent;
+}
 .root {
     display: none!important;
 }
@@ -87,11 +89,12 @@ body{
 }
 
 .view.active [data-view="position"]{
-    box-shadow: 0px 0px 20px 0 rgba(129, 137, 143, .44);
+    box-shadow: 0 0 20px 0 rgba(129, 137, 143, .44);
     border-color: yellowgreen;
 }
 
 /*Table*/
+
 table.dataTable {
     clear: both;
     margin-top: 6px !important;

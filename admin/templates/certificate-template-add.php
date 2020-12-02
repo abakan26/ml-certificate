@@ -38,11 +38,13 @@ global $FIELDS;
             </div>
         </div>
         <div class="col-md-8 d-flex justify-content-center">
-            <div class="parent a"
-                 style="background-image: url(<?= PLUGIN_URI . 'admin/css/images/sert.jpeg'; ?>);">
-                <?php foreach ($FIELDS as $key => $field) {
-                    getFieldView($field);
-                } ?>
+            <div class="parent-wrap">
+                <div class="parent a"
+                     style="background-image: url(<?= PLUGIN_URI . 'admin/css/images/sert.jpeg'; ?>);">
+                    <?php foreach ($FIELDS as $key => $field) {
+                        getFieldView($field);
+                    } ?>
+                </div>
             </div>
         </div>
     </div>
