@@ -36,9 +36,6 @@ if (isset($_GET['add']) && $_GET['add'] = 'certificate') {
     include 'templates/certificate-template-edit.php';
 } else {
     $certificates = CertificateTemplate::getCertificateTemplates();
-    echo "<pre>";
-
-    echo "</pre>";
     $data['certificates'] = array_map(function ($certificate) {
         $certificates = Certificate::query([
            'filter' => ['certificate_template_id' =>  $certificate->id]

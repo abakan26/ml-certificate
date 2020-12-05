@@ -1,5 +1,5 @@
 <?php
-require_once PLUGIN_ADMIN_PATH . '/libs/vendor/autoload.php';
+require_once PLUGIN_PATH . '/libs/vendor/autoload.php';
 
 class CertificateGenerator
 {
@@ -19,8 +19,8 @@ class CertificateGenerator
         $fields = $this->template->getFields();
 
         if (!is_null($this->data)){
-            foreach ($fields as $key => $field){
-                switch ($key){
+            foreach ($fields as $field){
+                switch ($field->code){
                     case 'name':
                         $field->example_text = $this->data['name'];
                         break;
@@ -33,14 +33,12 @@ class CertificateGenerator
                     case 'number':
                         $field->example_text = $this->data['number'];
                         break;
-
                     case 'course':
                         $field->example_text = $this->data['course'];
                         break;
                 }
             }
         }
-
 
         $image_src = $this->template->getImgSrc();
         $defaultConfig = (new Mpdf\Config\ConfigVariables())->getDefaults();
@@ -53,7 +51,7 @@ class CertificateGenerator
             'mode' => 'utf-8',
             'format' => [210, 297],
             'fontDir' => array_merge($fontDirs, [
-                PLUGIN_ADMIN_PATH . '/fonts',
+                PLUGIN_PATH . '/assets/fonts',
             ]),
             'dpi' => 96,
             'fontdata' => $fontData + [

@@ -303,4 +303,18 @@ class Certificate
             get_post_meta($productId, 'course_name', true)
         );
     }
+
+    public static function getCertificateByFIO(
+        string $graduate_first_name,
+        string $graduate_last_name,
+        string $graduate_surname = '')
+    {
+        global $wpdb;
+        $certificates = [];
+        $sql = "SELECT * FROM {$wpdb->prefix}" . self::TABLE_NAME . "
+         WHERE  `graduate_first_name` = %s
+         AND    `graduate_last_name`  = %s
+         ";
+        return $wpdb->get_results($wpdb->prepare($sql, $graduate_first_name, $graduate_last_name));
+    }
 }
