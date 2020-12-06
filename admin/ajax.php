@@ -21,6 +21,7 @@ function customerHasCertificate($userId, $productId)
 {
     global $wpdb;
     $sql = "SELECT certificate_id FROM `{$wpdb->prefix}memberlux_certificate` WHERE `product_id` = {$productId} AND user_id = {$userId}";
+    //TODO for auto generate certificate
     return !empty($wpdb->get_var($sql));
 
 }
@@ -31,7 +32,26 @@ add_action('wp_ajax_ml_select_user', function () {
     $productId = intval($_POST['product_id']);
     $levelId = (int)get_post_meta($productId, '_mbl_key_pin_code_level_id', true);
     $active = isset($_POST['active_wpmlevel']);
-    $users = getUsersByWPMLevelId($levelId, $active);
+    if (empty($_POST['user_email'])) {
+        $users = getUsersByWPMLevelId($levelId, $active);
+    } else {
+        $users[] = get_user_by('email', $_POST['user_email']);
+        $link = get_edit_user_link($users[0]->ID);
+        if (customerHasCertificate($users[0]->ID, $productId)) {
+            die(json_encode(['html' => "
+                <tr>
+                    <td colspan=\"5\">
+                        По данному курсу у пользователя <a href='$link' target='_blank'>
+                        {$users[0]->user_login}</a> уже есть сертификат
+                    </td>
+                </tr>
+            "]));
+        }
+    }
+    if (!count($users)) {
+        die(json_encode(['html' => '<tr><td colspan="5">Не результатов по запросу</td></tr>']));
+    }
+
 
     ob_start();
     foreach ($users as $userObj):
@@ -48,7 +68,7 @@ add_action('wp_ajax_ml_select_user', function () {
                 <?php if( $isCoach ): ?>
                     <?= $user->user_login; ?>
                  <?php else: ?>
-                    <a href='<?= get_edit_user_link($userId); ?>'>
+                    <a href='<?= get_edit_user_link($userId); ?>' target="_blank">
                         <?= $user->user_login; ?>
                     </a>
                 <?php endif ?>

@@ -3,6 +3,32 @@ function certificate_verification_callback($atts)
 {
     ob_start();
     ?>
+    <style>
+        body.page:not(.twentyseventeen-front-page) .entry-title {
+            font-size: 22px;
+        }
+        @media (min-width: 768px) {
+            body.page:not(.twentyseventeen-front-page) .entry-title {
+                font-size: 27px;
+            }
+        }
+        .certificate-search-result th, .certificate-search-result td{
+            padding: 0.25rem;
+            font-size: 14px;
+        }
+        .page.page-one-column:not(.twentyseventeen-front-page) #primary {
+            max-width: unset;
+        }
+        .result-fio {
+            min-width: 290px;
+            font-weight: normal;
+        }
+        .result-certificate-name{
+            max-width: 330px;
+        }
+    </style>
+
+    <div id="certificateSearchResult"></div>
     <div class="alert alert-success" role="alert" data-status="success" style="display:none;">
         Сертификат существует
     </div>
@@ -24,12 +50,23 @@ function certificate_verification_callback($atts)
                 <div class="form-row">
                     <div class="col-12">
                         <div class="form-group">
-                            <label for="graduate_last_name">Фамилия</label>
+                            <label for="graduate_last_name">
+                                Фамилия
+                                <small id="passwordHelpInline" class="text-danger">
+                                    * (обязательное поле)
+                                </small>
+                            </label>
                             <input required type="text" class="form-control" id="graduate_last_name"
                                    name="graduate_last_name">
+
                         </div>
                         <div class="form-group">
-                            <label for="graduate_first_name">Имя</label>
+                            <label for="graduate_first_name">
+                                Имя
+                                <small id="passwordHelpInline" class="text-danger">
+                                    * (обязательное поле)
+                                </small>
+                            </label>
                             <input required type="text" class="form-control" id="graduate_first_name"
                                    name="graduate_first_name">
                         </div>
@@ -55,11 +92,21 @@ function certificate_verification_callback($atts)
                 <div class="form-row">
                     <div class="col-12">
                         <div class="form-group">
-                            <label for="series">Серия</label>
+                            <label for="series">
+                                Серия
+                                <small id="passwordHelpInline" class="text-danger">
+                                    * (обязательное поле)
+                                </small>
+                            </label>
                             <input required type="text" class="form-control" name="series" id="series">
                         </div>
                         <div class="form-group">
-                            <label for="number">Номер</label>
+                            <label for="number">
+                                Номер
+                                <small id="passwordHelpInline" class="text-danger">
+                                    * (обязательное поле)
+                                </small>
+                            </label>
                             <input required type="text" class="form-control" name="number" id="number">
                         </div>
                     </div>
@@ -112,8 +159,14 @@ function certificate_verification_callback($atts)
             }
 
             function print_result(show, status, message = '') {
-                let view = $("[data-status="+status+"]");
+                let view = status === "success" ? $("#certificateSearchResult") : $("[data-status="+status+"]");
                 if (show) {
+                    if (status === "success"){
+                        console.log(view)
+                        view.html(message)
+                        view.show();
+                        return view;
+                    }
                     view.text(message);
                     view.show();
                 } else {

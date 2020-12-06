@@ -8,8 +8,6 @@ add_action( 'profile_update',  'updateCustomerFieldInCertificate', 10, 1);
 function view_user_profile_available_certificates_no_admin($profileuser)
 {
     $userID = $profileuser->ID;
-//    var_dump($userID);
-//    var_dump($_GET['certificate_id']);
     $userIdParam = parse_url(get_edit_user_link( $userID ))['query'];
     $baseUrl = strtok(get_edit_user_link( $userID ), '?') . '?' . ($userIdParam ? $userIdParam . '&' : '');
 
@@ -29,7 +27,7 @@ function view_user_profile_available_certificates_no_admin($profileuser)
             'download' => $baseUrl . $downloadParams,
         ];
 
-    }, array_merge(Certificate::getCustomerCertificates($profileuser->ID), getCustomerAutoCertificates($profileuser->ID)));
+    }, Certificate::getCustomerCertificates($profileuser->ID));
 
     if (isset($_GET['certificate_id']) && !empty($_GET['certificate_id'])) {
         $certificate_id = intval($_GET['certificate_id']);
@@ -91,7 +89,7 @@ function disabled_edit_any_fields()
 
 function updateCustomerFieldInCertificate($userId)
 {
-    foreach(Certificate::getCustomerCertificates($userId) as $certificate){
+    foreach(Certificate::getCustomerCertificates($userId, 'table') as $certificate){
         Certificate::update($certificate->id, [
             'graduate_first_name' => get_user_meta($userId, 'first_name', true),
             'graduate_last_name' => get_user_meta($userId, 'last_name', true),

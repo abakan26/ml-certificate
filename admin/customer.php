@@ -63,10 +63,10 @@ function getCustomerWPMLevels(int $customerId)
 {
     global $wpdb;
     $sql = "SELECT `term_id` FROM `{$wpdb->prefix}memberlux_term_keys` WHERE `user_id` = $customerId";
-    return $wpdb->get_col($sql);
+    return array_unique($wpdb->get_col($sql));
 }
 
-function getCustomerAutoCourses(int $customerId)
+function  getCustomerAutoCourses(int $customerId)
 {
     $courseOnBuy = [];
     foreach (getCustomerWPMLevels($customerId) as $CourseWpmLevelId){
@@ -93,15 +93,4 @@ function getCustomerAutoCourses(int $customerId)
     return array_map(function ($item){
         return $item->ID;
     }, $courseOnBuy);
-}
-
-function getCustomerAutoCertificates($customerId)
-{
-    $productIds = getCustomerAutoCourses($customerId);
-    return array_map(function ($productId) use ($customerId){
-        return Certificate::autoGenerateCertificate([
-            'product_id' => $productId,
-            'user_id' => $customerId,
-        ]);
-    }, $productIds);
 }

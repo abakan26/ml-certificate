@@ -1,5 +1,6 @@
 <?php
 require 'certificate-verification-shortcode.php';
+require 'search-results.php';
 
 add_action('wp_enqueue_scripts', function (){
     wp_enqueue_style('ml-bootstrap', 'https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css');
@@ -10,34 +11,59 @@ add_action('wp_enqueue_scripts', function (){
 add_shortcode( 'certificate_verification', 'certificate_verification_callback' );
 //[certificate_verification]
 
-add_action('wp_ajax_ml_verify_certificate_by_fio', 'existCertificateByFIO');
-add_action('wp_ajax_nopriv_ml_verify_certificate_by_fio', 'existCertificateByFIO');
+add_action('wp_ajax_ml_verify_certificate_by_fio', 'existCertificateByAjax');
+add_action('wp_ajax_nopriv_ml_verify_certificate_by_fio', 'existCertificateByAjax');
+add_action('wp_ajax_ml_verify_certificate_by_series', 'existCertificateByAjax');
+add_action('wp_ajax_nopriv_ml_verify_certificate_by_series', 'existCertificateByAjax');
+add_action('mbl_after_search_hint_form', function () {
+   ?>
+<!--    <a class="nav-item hidden-xs hidden-sm"-->
+<!--       href="#">-->
+<!--        Часто задаваемые вопросы-->
+<!--    </a>-->
+<?php
+});
 
-function existCertificateByFIO()
+add_filter( 'template_include', 'portfolio_page_template', 99 );
+function portfolio_page_template( $template ) {
+    if ( is_page( 'proverka-vydannyh-sertifikatov' )  ) {
+        return $template = __DIR__ . '/page.php';
+    }
+    return $template;
+}
+
+
+function existCertificateByAjax()
 {
-    $result = Certificate::getCertificateByFIO(
-        $_POST['graduate_first_name'],
-        $_POST['graduate_last_name'],
-        $_POST['graduate_surname']
-    );
+    $result = [];
+    if ($_POST['action'] === 'ml_verify_certificate_by_fio') {
+        $result = Certificate::getGroupingCertificateByFIO(
+            $_POST['graduate_last_name'],
+            $_POST['graduate_first_name'],
+            $_POST['graduate_surname']
+        );
+    } elseif ($_POST['action'] === 'ml_verify_certificate_by_series') {
+        $certificates = Certificate::getCertificateBySeriesNumber(
+            $_POST['series'],
+            $_POST['number']
+        );
+        foreach ($certificates as $certificate) {
+            $result[$certificate->user_id]['fio'] = $certificate->getFIO();
+            $result[$certificate->user_id]['certificates'][] = $certificate;
+        }
+    } else {
+        die();
+    }
 
     if (empty($result)) {
         die(json_encode([
             'status' => 'warning',
-            'message' => 'Данный не соответствуют ни одному результату'
+            'message' => 'По вашему запросу не найдено ни одного результата. Проверьте пожалуйста правильность введенных данных'
         ]));
     }
     die(json_encode([
         'status' => 'success',
-        'message' => 'Подтверждено'
+        'message' => printSearchResult($result)
     ]));
 
 }
-
-
-add_action('wp_ajax_ml_verify_certificate_by_series', function (){
-    die(json_encode(['status' => 'success', 'message' => 'wp_ajax_ml_verify_certificate_by_series']));
-});
-add_action('wp_ajax_nopriv_ml_verify_certificate_by_series', function (){
-    die(json_encode(['status' => 'success', 'message' => 'wp_ajax_nopriv_ml_verify_certificate_by_series']));
-});
