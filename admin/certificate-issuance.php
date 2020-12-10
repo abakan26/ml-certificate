@@ -5,6 +5,9 @@ $productCategories = get_terms([
     'hide_empty' => false,
     'taxonomy' => 'product_cat'
 ]);
+$productCategories = array_filter($productCategories, function ($term) {
+    return count(Course::getCourses($term->term_id, true));
+});
 $categoryOptions = array_map(function ($term){
     return [
         'id' => $term->term_id,

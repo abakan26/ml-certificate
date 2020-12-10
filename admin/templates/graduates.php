@@ -231,32 +231,54 @@ function _import_($length)
 }
 
 
-function s_n_csv($filename, $offset, $length)
+function getDoubleEmail($filename)
 {
-    $users = [];
-    $position = 0;
+    $count = 0;
     $handle = fopen($filename, "r");
-
     if ($handle === false) {
+        print_r("Не удалось открыть файл $filename");
         return false;
     }
-
-    fseek($handle, $offset);
-
-    for ($i = 0; $i < $length; $i++) {
-        $users[] = fgetcsv($handle, 300, ",");
+    while ($row = fgetcsv($handle, '300', ',')) {
+        if (isDoubleEmail($row)) {
+            writeResult($row);
+            $count++;
+        } else {
+            writeResult($row, false);
+        }
     }
-    $position = ftell($handle);
     fclose($handle);
-    return $users;
-}
+    echo '<br><br>';
+    echo '******************************';
+    print_r("Найдено $count записей");
 
-$users = s_n_csv(dirname(__DIR__) . '/import-sert.csv', 0, 2969);
-$res = array_map(function ($user){
-    return $user[5 ];
-}, $users);
-dump(array_unique($res));
-//_import_(700);
+
+}
+function isDoubleEmail($row)
+{
+    if ( count(explode(',', trim($row[3]))) > 1 )  {
+        return true;
+    }
+    if ( count(explode(';', trim($row[3]))) > 1 )  {
+        return true;
+    }
+    if ( count(explode(' ', trim($row[3]))) > 1 )  {
+        return true;
+    }
+    return false;
+}
+function writeResult($row, $condition = true)
+{
+    $filename = $condition ? 'double-email.csv' : 'other.csv';
+    $fp = fopen(__DIR__ . "/$filename", 'a');
+    fputcsv($fp, $row);
+    fclose($fp);
+    return true;
+}
+//$handler = new ImportHandler(__DIR__ . '/import-verify.csv', true);
+//$handler->import();
+//$start = intval(file_get_contents(dirname(__DIR__) . '/step.txt'));
+
 
 $time_end = microtime(true);
 dump($time_end - $time_start);

@@ -2,4 +2,4 @@
 admin/libs/vendor/*
 admin/libs/composer.lock
 admin/*.csv
-admin/import.php
+admin/import
