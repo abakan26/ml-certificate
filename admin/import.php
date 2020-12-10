@@ -136,30 +136,6 @@ function import_handler($data)
     write_not_exist($data);
 }
 
-function get_product_id_by_series($series)
-{
-    switch ($series) {
-        case 'GV-01':
-        case 'D-1':
-            return 1717;
-        case 'D-3':
-            return 1695;
-        case 'D-4':
-            return 2240;
-        case 'D-5':
-            return 1072;
-        case 'D-6':
-            return 2234;
-        case 'D-7':
-            return 2238;
-        case 'D-8':
-            return 2236;
-        case 'D-9':
-            return 2618;
-        case 'R-2':
-            return 1058;
-    }
-}
 
 function import_certificate($data)
 {

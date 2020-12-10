@@ -57,6 +57,7 @@ class ImportHandler
         ]);
         $member = new AcademyMember($user);
         $filtered = HandlerGrouping::usersFilter($importRow, $member, $this->need_update);
+
         if ($filtered['status'] === 'fail') {
             $notes = [get_edit_user_link($member->id)];
             $fields = ['last_name', 'first_name', 'surname'];

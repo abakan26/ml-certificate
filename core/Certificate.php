@@ -52,6 +52,21 @@ class Certificate
         $this->course_name = $course_name;
     }
 
+    public function getFIO()
+    {
+        return "$this->graduate_last_name $this->graduate_first_name $this->graduate_surname";
+    }
+
+    public function getCertificateName()
+    {
+        return $this->certificate_name;
+    }
+
+    public function getDateIssue()
+    {
+        return $this->date_issue;
+    }
+
     public static function create(
         int $user_id,
         string $certificate_name,
@@ -92,7 +107,7 @@ class Certificate
         return $wpdb->insert_id;
     }
 
-    public static function getCertificate($id)
+    public static function getCertificate($id): Certificate
     {
         global $wpdb;
         $sql = "SELECT * FROM {$wpdb->prefix}" . self::TABLE_NAME . " WHERE certificate_id = $id";
@@ -154,15 +169,32 @@ class Certificate
         return $digit;
     }
 
-    public static function getCustomerCertificates($userId)
+    public static function getCustomerCertificates($userId, $type = 'all')
     {
         global $wpdb;
         $certificates = [];
-        $sql = "SELECT certificate_id FROM {$wpdb->prefix}" . self::TABLE_NAME . " WHERE user_id = $userId";
-        foreach ($wpdb->get_col($sql) as $id) {
-            $certificates[] = Certificate::getCertificate($id);
+        if ($type === 'table' || $type === 'all') {
+            $sql = "SELECT certificate_id FROM {$wpdb->prefix}" . self::TABLE_NAME . " WHERE user_id = $userId";
+            foreach ($wpdb->get_col($sql) as $id) {
+                $certificates[] = Certificate::getCertificate($id);
+            }
+        }
+        if ($type === 'table') return $certificates;
+        if ($type === 'auto' || $type === 'all') {
+            $certificates = array_merge($certificates, self::getCustomerAutoCertificates($userId));
         }
         return $certificates;
+    }
+
+    public static function getCustomerAutoCertificates($customerId)
+    {
+        $productIds = getCustomerAutoCourses($customerId);
+        return array_map(function ($productId) use ($customerId){
+            return Certificate::autoGenerateCertificate([
+                'product_id' => $productId,
+                'user_id' => $customerId,
+            ]);
+        }, $productIds);
     }
 
     public static function isCustomerCertificate(int $userId, int $certificateId)
@@ -283,9 +315,17 @@ class Certificate
 
     public static function autoGenerateCertificate($param)
     {
+        global $wpdb;
         $productId = intval($param['product_id']);
         $userId = intval($param['user_id']);
         $product = get_post($productId);
+        $wpmLevel = get_post_meta($productId, '_mbl_key_pin_code_level_id', true);
+        $date = $wpdb->get_var("SELECT `date_start`
+            FROM `{$wpdb->prefix}memberlux_term_keys`
+            WHERE `user_id` = $userId AND `term_id` = $wpmLevel
+            ORDER BY `date_start` DESC
+            LIMIT 1
+         ");
         return new Certificate(
             0,
             $product->post_excerpt,
@@ -295,12 +335,50 @@ class Certificate
             get_user_meta($userId, 'first_name', true),
             get_user_meta($userId, 'last_name', true),
             get_user_meta($userId, 'surname', true),
-        '',
+            $date,
             get_post_meta($productId, 'certificate_series', true),
             Certificate::generateCertificateNumber($userId),
-        1,
-        '',
+            1,
+            $date,
             get_post_meta($productId, 'course_name', true)
         );
     }
+
+    public static function getGroupingCertificateByFIO(
+        string $graduate_last_name,
+        string $graduate_first_name,
+        string $graduate_surname = '')
+    {
+        $certificates = [];
+        $members = Member::getMembersByFio(
+            $graduate_last_name,
+            $graduate_first_name,
+            $graduate_surname
+        );
+        foreach ($members as $member) {
+            $res = Certificate::getCustomerCertificates($member->ID);
+            if (!empty($res)) {
+                $certificates[$member->ID]['fio'] = trim("$member->last_name $member->first_name "
+                    . $member->surname);
+                $certificates[$member->ID]['certificates'] = $res;
+            }
+        }
+        return $certificates;
+    }
+
+    public static function getCertificateBySeriesNumber(
+        string $series,
+        string $number)
+    {
+        global $wpdb;
+        $certificates = [];
+        $ids = $wpdb->get_col(
+            $wpdb->prepare("SELECT `certificate_id`
+                FROM {$wpdb->prefix}" . self::TABLE_NAME . "
+                WHERE `series` = %s AND `number` = %s
+            ", $series, $number)
+        );
+        return array_map(['Certificate', 'getCertificate'], $ids);
+    }
+
 }

@@ -58,6 +58,7 @@ class HandlerGrouping
         //do action with duplicates row by $first and $second fields
     }
 
+
     public static function usersFilter(ImportedRow $tableRow, AcademyMember $user, $need_update)
     {
         $results = [];

@@ -68,13 +68,14 @@
         <form id="mlDayAfterCourseEndForm">
             <div class="form-group">
                 <input type="hidden" name="action" value="ml_save_day_after_course_end">
-                <input type="number" id="mlDayAfterCourseEnd" value="<?= get_option('ml_day_after_course_end') ?>"
-                       name="day_number" class="form-control d-inline-block" style="width: 70px;">
+
+                <label for="mlDayAfterCourseEnd" class="form-check-label">
+                    Выводить кураторам студентов с датой окончания уровня доступа +
+                    <input type="number" id="mlDayAfterCourseEnd" value="<?= get_option('ml_day_after_course_end') ?>"
+                     name="day_number" class="form-control d-inline-block" style="width: 70px;"> дней</label>
                 <button type="submit" name="submit" class="btn">
                     <span class="fa fa-save"></span>
                 </button>
-                <label for="mlDayAfterCourseEnd" class="form-check-label">
-                    Выводить кураторам студентов с датой окончания уровня доступа + X дней</label>
             </div>
         </form>
     <?php endif; ?>
@@ -90,7 +91,7 @@
                 <?php endforeach; ?>
             </select>
         <?php else: ?>
-            <select class="form-control d-inline-block" name="category_id" id="category_id">
+            <select class="form-control d-inline-block mb-2 mb-lg-0" name="category_id" id="category_id">
                 <option value="" selected="selected">Выбрать категорию товара</option>
                 <?php foreach ($categoryOptions as $category): ?>
                     <option value="<?= $category['id']; ?>">
@@ -98,8 +99,8 @@
                     </option>
                 <?php endforeach; ?>
             </select>
-            <select class="form-control d-inline-block" required name="product_id" id="product_id"></select>
-            <div class="form-check-inline">
+            <select class="form-control d-inline-block mb-2 mb-lg-0" required name="product_id" id="product_id"></select>
+            <div class="form-check-inline mb-2">
                 <input type="checkbox" id="activeWPMLevel" name="active_wpmlevel" checked value="active-wpmlevel">
                 <label for="activeWPMLevel" class="form-check-label">Только активные уровни доступа</label>
             </div>
@@ -107,7 +108,13 @@
             <input type="hidden" name="action" value="ml_select_user">
             <input type="hidden" name="orderby" value="user_login">
             <input type="hidden" name="order" value="asc">
-            <input type="submit" id="ml_select_user" class="btn btn-success" value="Выбрать">
+            <?php if(!$isCoach): ?>
+                <div class="mt-2 mr-2 d-inline-block">
+                    <label for="user_email">Выдать пользователю</label>
+                    <input class="form-control" style="max-width: 250px" type="text" name="user_email" id="user_email" placeholder="Введите email">
+                </div>
+            <?php endif; ?>
+            <input type="submit" id="ml_select_user" class="btn btn-success" value="Показать">
         </form>
     </div>
     <div id="alertError" class="alert alert-danger mt-4" role="alert" style="display: none">
@@ -123,7 +130,7 @@
                 <h6 class="m-0 font-weight-bold text-primary">
                     <div class="h-auto ">
                         <label for="date">Дата присвоения сертификата</label>
-                        <input id="date" type="date" name="date_issue" required class="form-control"
+                        <input id="date" type="date" name="date_issue" required class="form-control mb-2 mb-lg-0"
                                style="display: inline-block;width: 200px;">
                         <input type="hidden" id="product_id_users" name="product_id" value="">
                         <input type="hidden" name="action" value="ml_certificate_delivery">
