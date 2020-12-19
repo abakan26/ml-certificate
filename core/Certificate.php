@@ -52,6 +52,14 @@ class Certificate
         $this->course_name = $course_name;
     }
 
+    public function getAdditionFields()
+    {
+        $fields = [];
+        if ($field1 = get_post_meta($this->product_id, 'field1', true)) $fields['field1'] = $field1;
+        if ($field2 = get_post_meta($this->product_id, 'field2', true)) $fields['field2'] = $field2;
+        return $fields;
+    }
+
     public function getFIO()
     {
         return "$this->graduate_last_name $this->graduate_first_name $this->graduate_surname";

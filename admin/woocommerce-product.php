@@ -68,6 +68,26 @@ function add_certificate_fields()
         'wrapper_class' => 'show_if_yes_certificate'
     ));
 
+    woocommerce_wp_textarea_input(array(
+        'id' => 'field1',
+        'name' => 'certificate[field1]',
+        'label' => __('Доп поле 1', 'woocommerce'),
+        'placeholder' => 'Доп поле 1',
+        'desc_tip' => 'false',
+        'value' => get_post_meta(get_the_ID(), 'field1', true),
+        'wrapper_class' => 'show_if_yes_certificate'
+    ));
+
+    woocommerce_wp_textarea_input(array(
+        'id' => 'field2',
+        'name' => 'certificate[field2]',
+        'label' => __('Доп поле 2', 'woocommerce'),
+        'placeholder' => 'Доп поле 2',
+        'desc_tip' => 'false',
+        'value' => get_post_meta(get_the_ID(), 'field2', true),
+        'wrapper_class' => 'show_if_yes_certificate'
+    ));
+
     $options = ['' => 'Выберите шаблон'];
     foreach (CertificateTemplate::getCertificateTemplates() as $template) {
         $options[$template->id] = $template->name;

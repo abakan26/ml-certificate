@@ -36,6 +36,12 @@ class CertificateGenerator
                     case 'course':
                         $field->example_text = $this->data['course'];
                         break;
+                    case 'field1':
+                        $field->example_text = $this->data['field1'];
+                        break;
+                    case 'field2':
+                        $field->example_text = $this->data['field2'];
+                        break;
                 }
             }
         }
@@ -43,24 +49,15 @@ class CertificateGenerator
         $image_src = $this->template->getImgSrc();
         $defaultConfig = (new Mpdf\Config\ConfigVariables())->getDefaults();
         $fontDirs = $defaultConfig['fontDir'];
-
         $defaultFontConfig = (new Mpdf\Config\FontVariables())->getDefaults();
         $fontData = $defaultFontConfig['fontdata'];
-
         $mpdf = new \Mpdf\Mpdf([
             'mode' => 'utf-8',
             'format' => [210, 297],
-            'fontDir' => array_merge($fontDirs, [
-                PLUGIN_PATH . '/assets/fonts',
-            ]),
+            'fontDir' => array_merge($fontDirs, FontHandler::getDirs()),
             'dpi' => 96,
-            'fontdata' => $fontData + [
-                    'opensans' => [
-                        'R' => 'OpenSans-Regular.ttf',
-                        'B' => 'OpenSans-Bold.ttf',
-                    ]
-                ],
-            'default_font' => 'opensans'
+            'fontdata' => $fontData + FontHandler::getFonts(),
+            'default_font' => FontHandler::getDefault()
         ]);
         ob_clean();
 
@@ -152,6 +149,8 @@ class CertificateGenerator
                 'series' => $certificate->series,
                 'number' => $certificate->number,
                 'course' => $certificate->course_name,
+                'field1' => $certificate->getAdditionFields()['field1'],
+                'field2' => $certificate->getAdditionFields()['field2'],
             ]
         );
     }

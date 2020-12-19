@@ -46,7 +46,7 @@
         <div class="col-md-8 d-flex justify-content-center">
             <div class="parent-wrap">
                 <div class="parent a">
-                    <img src="<?= $data['image']; ?>" alt=""
+                    <img src="<?= $data['image']; ?>" alt="" id="certificateImage"
                          style="position:absolute;width: 210mm; height: 297mm;top: 0;left: 0;"
                     >
                     <?php foreach ($fields as $key => $field) {

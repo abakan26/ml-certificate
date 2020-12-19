@@ -9,7 +9,7 @@ if (!defined('ABSPATH')) {
 define('PLUGIN_NAME', 'ml-certificate');
 define('PLUGIN_PATH', __DIR__);
 define('PLUGIN_URI', plugin_dir_url('ml-certificate/ml-certificate.php'));
-define('PLUGIN_ASSETS_URI', plugin_dir_url('ml-certificate/ml-certificate.php') . '/assets');
+define('PLUGIN_ASSETS_URI', plugin_dir_url('ml-certificate/ml-certificate.php') . 'assets');
 
 // capabilities
 define('CERTIFICATE_DELIVERY', 'certificate-delivery'); // Выдача сертификатов

@@ -6,7 +6,7 @@
 <fieldset class="card root" data-control="<?= $field->code ?>">
     <legend>Настройки поля <?= $field->name ?></legend>
     <div class="form-check mb-2">
-        <input name="fields[<?= $field->code ?>][hide]" class="form-check-input" id="hide_field"
+        <input name="fields[<?= $field->code ?>][hide]" class="form-check-input" id="hide_field_<?= $field->code ?>"
                type="checkbox" value="1" <?=  $field->hide ? 'checked' : ''; ?>
                style="margin-top: .3rem!important;margin-left: -1.25rem!important;">
         <label class="form-check-label" for="hide_field">Скрыть это поле</label>
@@ -55,8 +55,9 @@
                 Семейство шрифтов:
                 <select data-font="family" class="form-control"
                         name="fields[<?= $field->code ?>][font_family]">
-                    <option value="sanserif">San Serif</option>
-                    <option value="opensans">Open Sans</option>
+                    <?php foreach (FontHandler::getFontFamilies() as $fontFamily): ?>
+                    <option value="<?= $fontFamily ?>"><?= $fontFamily ?></option>
+                    <?php endforeach; ?>
                 </select>
             </label>
         </div>
