@@ -39,8 +39,10 @@ global $FIELDS;
         </div>
         <div class="col-md-8 d-flex justify-content-center">
             <div class="parent-wrap">
-                <div class="parent a"
-                     style="background-image: url(<?= PLUGIN_URI . 'admin/css/images/sert.jpeg'; ?>);">
+                <div class="parent a">
+                    <img src="<?= PLUGIN_ASSETS_URI . '/css/images/sert.jpeg'; ?>" alt=""
+                         id="certificateImage"
+                         style="position:absolute;width: 210mm; height: 297mm;top: 0;left: 0;">
                     <?php foreach ($FIELDS as $key => $field) {
                         getFieldView($field);
                     } ?>

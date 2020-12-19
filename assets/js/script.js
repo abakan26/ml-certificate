@@ -12,7 +12,7 @@ jQuery(document).ready(() => {
     media.on('select', function() {
         let attachment = media.state().get('selection').first().toJSON();
         jQuery("[name=attachment_id]").val(attachment.id);
-        jQuery(".parent").css("background-image", `url(${attachment.url})`);
+        jQuery("#certificateImage").attr("src", attachment.url);
     });
 
     jQuery(document).on('click', 'button[data-target="media-open"]', function() {
@@ -41,6 +41,20 @@ class Field {
         this.init();
     }
 
+    rgb2hex(rgb) {
+        rgb = rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+        function hex(x) {
+            return ("0" + parseInt(x).toString(16)).slice(-2);
+        }
+        // Check if rgb is null
+        if (rgb == null ) {
+            // You could repalce the return with a default color, i.e. the line below
+            // return "#ffffff"
+            return "Error";
+        }
+        return "#" + hex(rgb[1]) + hex(rgb[2]) + hex(rgb[3]);
+    }
+
     init() {
         let initialFontWeight = parseInt(jQuery(this.fontView).css("font-weight"));
         let initialFontFamily = jQuery(this.fontView).css("font-family");
@@ -50,7 +64,7 @@ class Field {
         let initialColor = jQuery(this.fontView).css("color");
         this.fontSizeInpt.value = initialFontSize;
         this.textLineHeightInpt.value = initialLineHeight;
-        this.textColor.value = initialColor;
+        this.textColor.value = this.rgb2hex(initialColor);
         jQuery(this.fontWeightSelect).find(`option[value=${initialFontWeight}]`).prop("selected", true);
         jQuery(this.fontFamilySelect).find(`option[value=${initialFontFamily}]`).prop("selected", true);
         jQuery(this.textAlignSelect).find(`option[value=${initialTextAlign}]`).prop("selected", true);

@@ -43,24 +43,15 @@ class CertificateGenerator
         $image_src = $this->template->getImgSrc();
         $defaultConfig = (new Mpdf\Config\ConfigVariables())->getDefaults();
         $fontDirs = $defaultConfig['fontDir'];
-
         $defaultFontConfig = (new Mpdf\Config\FontVariables())->getDefaults();
         $fontData = $defaultFontConfig['fontdata'];
-
         $mpdf = new \Mpdf\Mpdf([
             'mode' => 'utf-8',
             'format' => [210, 297],
-            'fontDir' => array_merge($fontDirs, [
-                PLUGIN_PATH . '/assets/fonts',
-            ]),
+            'fontDir' => array_merge($fontDirs, FontHandler::getDirs()),
             'dpi' => 96,
-            'fontdata' => $fontData + [
-                    'opensans' => [
-                        'R' => 'OpenSans-Regular.ttf',
-                        'B' => 'OpenSans-Bold.ttf',
-                    ]
-                ],
-            'default_font' => 'opensans'
+            'fontdata' => $fontData + FontHandler::getFonts(),
+            'default_font' => FontHandler::getDefault()
         ]);
         ob_clean();
 
