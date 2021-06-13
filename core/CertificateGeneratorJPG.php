@@ -16,38 +16,7 @@ class CertificateGeneratorJPG
 
     public function render($filename = 'certificate.jpg', $type = CertificateGenerator::VIEW)
     {
-        $fields = $this->origin->template->getFields();
-        if (!is_null($this->origin->data)){
-            foreach ($fields as $field){
-                switch ($field->code){
-                    case 'name':
-                        $field->example_text = $this->origin->data['name'];
-                        break;
-                    case 'date':
-                        #$field->example_text = $this->data['date'];
-                        $field->example_text = date('d-m-Y', strtotime($this->origin->data['date']));
-                        break;
-                    case 'date_end':
-                        $field->example_text = date('d-m-Y', strtotime($this->origin->data['date_end']));
-                        break;
-                    case 'series':
-                        $field->example_text = $this->origin->data['series'];
-                        break;
-                    case 'number':
-                        $field->example_text = $this->origin->data['number'];
-                        break;
-                    case 'course':
-                        $field->example_text = $this->origin->data['course'];
-                        break;
-                    case 'field1':
-                        $field->example_text = $this->origin->data['field1'];
-                        break;
-                    case 'field2':
-                        $field->example_text = $this->origin->data['field2'];
-                        break;
-                }
-            }
-        }
+        $fields = $this->replaceExampleText();
         $image_src = $this->origin->template->getImgSrc();
         $defaultConfig = (new Mpdf\Config\ConfigVariables())->getDefaults();
         $fontDirs = $defaultConfig['fontDir'];
@@ -130,6 +99,11 @@ class CertificateGeneratorJPG
             . ' -c quit';
         exec($cmd, $outputLineList, $exitCode);
         return $exitCode;
+    }
+
+    public function replaceExampleText()
+    {
+        return $this->origin->replaceExampleText();
     }
 }
 

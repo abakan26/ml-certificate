@@ -16,38 +16,7 @@ class CertificateGenerator
 
     public function render($filename = 'certificate.pdf', $type = self::VIEW)
     {
-        $fields = $this->template->getFields();
-        if (!is_null($this->data)){
-            foreach ($fields as $field){
-                switch ($field->code){
-                    case 'name':
-                        $field->example_text = $this->data['name'];
-                        break;
-                    case 'date':
-                        #$field->example_text = $this->data['date'];
-                        $field->example_text = date('d-m-Y', strtotime($this->data['date']));
-                        break;
-                    case 'date_end':
-                        $field->example_text = date('d-m-Y', strtotime($this->data['date_end']));
-                        break;
-                    case 'series':
-                        $field->example_text = $this->data['series'];
-                        break;
-                    case 'number':
-                        $field->example_text = $this->data['number'];
-                        break;
-                    case 'course':
-                        $field->example_text = $this->data['course'];
-                        break;
-                    case 'field1':
-                        $field->example_text = $this->data['field1'];
-                        break;
-                    case 'field2':
-                        $field->example_text = $this->data['field2'];
-                        break;
-                }
-            }
-        }
+        $fields = $this->replaceExampleText();
         $image_src = $this->template->getImgSrc();
         $defaultConfig = (new Mpdf\Config\ConfigVariables())->getDefaults();
         $fontDirs = $defaultConfig['fontDir'];
@@ -149,5 +118,42 @@ class CertificateGenerator
                 'field2' => $certificate->getAdditionFields()['field2'],
             ]
         );
+    }
+
+    public function replaceExampleText()
+    {
+        $fields = $this->template->getFields();
+        if (!is_null($this->data)){
+            foreach ($fields as $field){
+                switch ($field->code){
+                    case 'name':
+                        $field->example_text = $this->data['name'];
+                        break;
+                    case 'date':
+                        #$field->example_text = $this->data['date'];
+                        $field->example_text = date('d-m-Y', strtotime($this->data['date']));
+                        break;
+                    case 'date_end':
+                        $field->example_text = date('d-m-Y', strtotime($this->data['date_end']));
+                        break;
+                    case 'series':
+                        $field->example_text = $this->data['series'];
+                        break;
+                    case 'number':
+                        $field->example_text = $this->data['number'];
+                        break;
+                    case 'course':
+                        $field->example_text = $this->data['course'];
+                        break;
+                    case 'field1':
+                        $field->example_text = $this->data['field1'];
+                        break;
+                    case 'field2':
+                        $field->example_text = $this->data['field2'];
+                        break;
+                }
+            }
+        }
+        return $fields;
     }
 }
