@@ -155,7 +155,7 @@ add_action('wp_ajax_ml_get_products_by_category', function () {
 });
 
 add_action('wp_ajax_ml_certificate_filtered', function () {
-    include PLUGIN_ADMIN_PATH . '/templates/parts/member-certificate-row.php';
+    require_once PLUGIN_ADMIN_PATH . '/features/certificates-table/table/table-row.php';
     $data = json_decode(stripslashes($_POST['data']));
     $params = [
         'page_num' => $data->page_num,
