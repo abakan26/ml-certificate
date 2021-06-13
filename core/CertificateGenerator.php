@@ -17,7 +17,6 @@ class CertificateGenerator
     public function render($filename = 'certificate.pdf', $type = self::VIEW)
     {
         $fields = $this->template->getFields();
-
         if (!is_null($this->data)){
             foreach ($fields as $field){
                 switch ($field->code){
@@ -25,7 +24,11 @@ class CertificateGenerator
                         $field->example_text = $this->data['name'];
                         break;
                     case 'date':
-                        $field->example_text = $this->data['date'];
+                        #$field->example_text = $this->data['date'];
+                        $field->example_text = date('d-m-Y', strtotime($this->data['date']));
+                        break;
+                    case 'date_end':
+                        $field->example_text = date('d-m-Y', strtotime($this->data['date_end']));
                         break;
                     case 'series':
                         $field->example_text = $this->data['series'];
@@ -45,7 +48,6 @@ class CertificateGenerator
                 }
             }
         }
-
         $image_src = $this->template->getImgSrc();
         $defaultConfig = (new Mpdf\Config\ConfigVariables())->getDefaults();
         $fontDirs = $defaultConfig['fontDir'];
@@ -60,26 +62,19 @@ class CertificateGenerator
             'default_font' => FontHandler::getDefault()
         ]);
         ob_clean();
-
-
         try {
-
             $stylesheet = file_get_contents(PLUGIN_ADMIN_PATH . '/css/fonts.css');
             $mpdf->WriteHTML($stylesheet, \Mpdf\HTMLParserMode::HEADER_CSS);
             $mpdf->BeginLayer(1);
             $mpdf->WriteHTML($this->getImage($image_src), \Mpdf\HTMLParserMode::HTML_BODY);
             $mpdf->EndLayer();
             $mpdf->BeginLayer(2);
-
             foreach ($fields as $field) {
-
                 if ($field->hide){
                     continue;
                 }
-
                 $mpdf->WriteHTML($this->getField((array)$field));
             }
-
             if ($type === self::VIEW) {
                 $mpdf->Output($filename, \Mpdf\Output\Destination::INLINE);
             } elseif ($type === self::DOWNLOAD) {
@@ -139,13 +134,14 @@ class CertificateGenerator
         return ob_get_clean();
     }
 
-    public static function getCertificateGeneratorByCertificate(Certificate $certificate)
+    public static function getCertificateGeneratorByCertificate(Certificate $certificate): CertificateGenerator
     {
         return new CertificateGenerator(
             CertificateTemplate::getTemplate($certificate->certificate_template_id),
             [
                 'name' => getFIO($certificate->user_id),
                 'date' => $certificate->date_issue,
+                'date_end' => $certificate->date_end,
                 'series' => $certificate->series,
                 'number' => $certificate->number,
                 'course' => $certificate->course_name,

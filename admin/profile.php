@@ -16,14 +16,22 @@ function view_user_profile_available_certificates_no_admin($profileuser)
         if ($certificate->id !== 0) {
             $viewParams = http_build_query(['certificate_id' => $certificate->id]);
             $downloadParams = http_build_query(['certificate_id' => $certificate->id, 'download' => 1]);
+            $downloadParamsJpg = http_build_query(['certificate_id' => $certificate->id, 'type' => 'jpg', 'download' => 1]);
         } else {
             $viewParams = http_build_query(['prid' => $certificate->product_id, 'autogen' => 1]);
             $downloadParams = http_build_query(['prid' => $certificate->product_id, 'autogen' => 1, 'download' => 1]);
+            $downloadParamsJpg = http_build_query([
+                'prid' => $certificate->product_id,
+                'autogen' => 1,
+                'download' => 1,
+                'type' => 'jpg'
+            ]);
         }
 
         return [
             'text' => $certificate->certificate_name,
             'view' => $baseUrl . $viewParams,
+            'download_jpg' => $baseUrl . $downloadParamsJpg,
             'download' => $baseUrl . $downloadParams,
         ];
 
@@ -35,6 +43,11 @@ function view_user_profile_available_certificates_no_admin($profileuser)
             $certificate = Certificate::getCertificate($certificate_id);
             $generator = CertificateGenerator::getCertificateGeneratorByCertificate($certificate);
             if (isset($_GET['download']) && !empty($_GET['download'])) {
+                if (isset($_GET['type']) && $_GET['type'] === 'jpg') {
+                    $generatorJPG = new CertificateGeneratorJPG($generator);
+                    $generatorJPG->render('certificate.jpg', CertificateGenerator::DOWNLOAD);
+                    exit();
+                }
                 $generator->render('certificate.pdf',  CertificateGenerator::DOWNLOAD);
                 exit();
             }
@@ -46,6 +59,7 @@ function view_user_profile_available_certificates_no_admin($profileuser)
             'user_id' => $userID,
             'product_id' => intval($_GET['prid']),
         ]);
+
         $generator = CertificateGenerator::getCertificateGeneratorByCertificate($certificate);
         if (isset($_GET['download']) && !empty($_GET['download'])) {
             $generator->render('certificate.pdf',  CertificateGenerator::DOWNLOAD);

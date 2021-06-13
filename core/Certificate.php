@@ -18,6 +18,7 @@ class Certificate
     public $responsible_person = '';
     public $create_date = '';
     public $course_name = '';
+    public $date_end = '';
 
     public function __construct(
         int $id,
@@ -33,7 +34,8 @@ class Certificate
         string $number,
         string $responsible_person,
         string $create_date,
-        string $course_name
+        string $course_name,
+        $date_end = ''
     )
     {
         $this->id = $id;
@@ -50,9 +52,10 @@ class Certificate
         $this->responsible_person = $responsible_person;
         $this->create_date = $create_date;
         $this->course_name = $course_name;
+        $this->date_end = $date_end;
     }
 
-    public function getAdditionFields()
+    public function getAdditionFields(): array
     {
         $fields = [];
         if ($field1 = get_post_meta($this->product_id, 'field1', true)) $fields['field1'] = $field1;
@@ -60,17 +63,17 @@ class Certificate
         return $fields;
     }
 
-    public function getFIO()
+    public function getFIO(): string
     {
         return "$this->graduate_last_name $this->graduate_first_name $this->graduate_surname";
     }
 
-    public function getCertificateName()
+    public function getCertificateName(): string
     {
         return $this->certificate_name;
     }
 
-    public function getDateIssue()
+    public function getDateIssue(): string
     {
         return $this->date_issue;
     }
@@ -115,6 +118,22 @@ class Certificate
         return $wpdb->insert_id;
     }
 
+    public static function update(int $certificate_id, array $fields = [])
+    {
+        global $wpdb;
+        $tablename = $wpdb->prefix . self::TABLE_NAME;
+        $setData = Data::dataToString(self::cleanKey($fields));
+        $wpdb->query("UPDATE $tablename SET $setData WHERE `certificate_id` = $certificate_id");
+    }
+
+    public static function delete(int $certificate_id)
+    {
+        global $wpdb;
+        $tableName = $wpdb->prefix . self::TABLE_NAME;
+        $wpdb->query("DELETE FROM $tableName WHERE `certificate_id` = $certificate_id");
+        //TODO return bool
+    }
+
     public static function getCertificate($id): Certificate
     {
         global $wpdb;
@@ -139,27 +158,11 @@ class Certificate
         );
     }
 
-    public static function update(int $certificate_id, array $fields = [])
-    {
-        global $wpdb;
-        $tablename = $wpdb->prefix . self::TABLE_NAME;
-        $setData = Data::dataToString(self::cleanKey($fields));
-        $wpdb->query("UPDATE $tablename SET $setData WHERE `certificate_id` = $certificate_id");
-    }
-
-    public static function delete(int $certificate_id)
-    {
-        global $wpdb;
-        $tablename = $wpdb->prefix . self::TABLE_NAME;
-        $wpdb->query("DELETE FROM $tablename WHERE `certificate_id` = $certificate_id");
-        //TODO return bool
-    }
-
     public static function cleanKey(array $fields): array
     {
         global $wpdb;
-        $tablename = $wpdb->prefix . self::TABLE_NAME;
-        $keys = $wpdb->get_col("SHOW COLUMNS FROM $tablename");
+        $tableName = $wpdb->prefix . self::TABLE_NAME;
+        $keys = $wpdb->get_col("SHOW COLUMNS FROM $tableName");
         return array_filter($fields, function ($key) use ($keys) {
             return in_array($key, $keys);
         }, ARRAY_FILTER_USE_KEY);
@@ -170,14 +173,14 @@ class Certificate
         return self::numberFormat($user_id, 5);
     }
 
-    public static function numberFormat($digit, $width)
+    public static function numberFormat($digit, $width): string
     {
         while (strlen($digit) < $width)
             $digit = '0' . $digit;
         return $digit;
     }
 
-    public static function getCustomerCertificates($userId, $type = 'all')
+    public static function getCustomerCertificates($userId, $type = 'all'): array
     {
         global $wpdb;
         $certificates = [];
@@ -194,7 +197,7 @@ class Certificate
         return $certificates;
     }
 
-    public static function getCustomerAutoCertificates($customerId)
+    public static function getCustomerAutoCertificates($customerId): array
     {
         $productIds = getCustomerAutoCourses($customerId);
         return array_map(function ($productId) use ($customerId){
@@ -205,7 +208,7 @@ class Certificate
         }, $productIds);
     }
 
-    public static function isCustomerCertificate(int $userId, int $certificateId)
+    public static function isCustomerCertificate(int $userId, int $certificateId): bool
     {
         global $wpdb;
         $sql = "SELECT * FROM {$wpdb->prefix}" . self::TABLE_NAME . " 
@@ -255,7 +258,7 @@ class Certificate
         return $wpdb->insert_id;
     }
 
-    public static function query($params)
+    public static function query($params):array
     {
         global $wpdb;
         $tableName = $wpdb->prefix . self::TABLE_NAME;
@@ -321,7 +324,7 @@ class Certificate
         ];
     }
 
-    public static function autoGenerateCertificate($param)
+    public static function autoGenerateCertificate($param): Certificate
     {
         global $wpdb;
         $productId = intval($param['product_id']);
@@ -334,6 +337,13 @@ class Certificate
             ORDER BY `date_start` DESC
             LIMIT 1
          ");
+        $date_end = $wpdb->get_var("SELECT `date_end`
+            FROM `{$wpdb->prefix}memberlux_term_keys`
+            WHERE `user_id` = $userId AND `term_id` = $wpmLevel
+            ORDER BY `date_start` DESC
+            LIMIT 1
+         ");
+
         return new Certificate(
             0,
             $product->post_excerpt,
@@ -348,14 +358,15 @@ class Certificate
             Certificate::generateCertificateNumber($userId),
             1,
             $date,
-            get_post_meta($productId, 'course_name', true)
+            get_post_meta($productId, 'course_name', true),
+            $date_end
         );
     }
 
     public static function getGroupingCertificateByFIO(
         string $graduate_last_name,
         string $graduate_first_name,
-        string $graduate_surname = '')
+        string $graduate_surname = ''): array
     {
         $certificates = [];
         $members = Member::getMembersByFio(
@@ -376,7 +387,7 @@ class Certificate
 
     public static function getCertificateBySeriesNumber(
         string $series,
-        string $number)
+        string $number): array
     {
         global $wpdb;
         $certificates = [];

@@ -1,5 +1,6 @@
 /.idea
-admin/libs/vendor/*
+admin/templates/import
+dev/node_modules
+dev/.idea
 admin/libs/composer.lock
 admin/*.csv
-admin/import

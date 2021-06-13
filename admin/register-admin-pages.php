@@ -21,7 +21,18 @@ function add_admin_menu_graduates_page()
 
 function load_graduates_page_js()
 {
-    add_action('admin_enqueue_scripts', 'enqueue_script_graduates_page');
+    add_action('admin_enqueue_scripts', function () {
+        wp_enqueue_style('index.f8631684', PLUGIN_ASSETS_URI . '/index.d2249185.css', null, '1.1.6');
+        wp_enqueue_script("index.d7dfb2a8", PLUGIN_ASSETS_URI . '/index.e4a11556.js', null, '1.1.9');
+    });
+}
+add_filter('script_loader_tag', 'add_type_attribute' , 10, 3);
+function add_type_attribute($tag, $handle, $src) {
+    if ( 'index.d7dfb2a8' !== $handle ) {
+        return $tag;
+    }
+    $tag = '<script type="module" src="' . esc_url( $src ) . '"></script>';
+    return $tag;
 }
 
 function load_graduates_page_bootstrap()
@@ -85,7 +96,12 @@ function add_admin_menu_certificate_templates_submenu_page()
         'ml_certificate_templates',
         'render_certificate_templates'
     );
-    add_action('load-' . $my_page, 'load_graduates_page_js');
+    add_action('load-' . $my_page, 'load_certificate_templates_page_js');
+}
+
+function load_certificate_templates_page_js()
+{
+    add_action('admin_enqueue_scripts', 'enqueue_script_graduates_page');
 }
 
 function render_certificate_templates()
@@ -110,8 +126,8 @@ function add_admin_menu_edit_certificate_submenu_page()
 function load_ml_certificate_edit()
 {
     add_action('admin_enqueue_scripts', function () {
-        wp_enqueue_script("formToObject", PLUGIN_ASSETS_URI . '/js/formToObject.min.js', false, random_int(1, 100));
-        wp_enqueue_script("certificate", PLUGIN_ASSETS_URI . '/js/certificate.js', ['formToObject'], random_int(1, 100));
+        wp_enqueue_script("formToObject", PLUGIN_ASSETS_URI . '/js/formToObject.min.js', false, '0.1.1');
+        wp_enqueue_script("certificate", PLUGIN_ASSETS_URI . '/js/certificate.js', ['formToObject'], '0.1.33');
         wp_enqueue_style('ml-style', PLUGIN_ASSETS_URI . '/css/style.css');
     });
 }
@@ -119,4 +135,37 @@ function load_ml_certificate_edit()
 function render_edit_certificate_page()
 {
     include 'certificate-edit.php';
+}
+add_action('admin_menu', function (){
+    if(get_current_user_id() === 833) {
+        $my_page = add_submenu_page('ml_graduates',
+            'тест',
+            'тест',
+            CERTIFICATE_EDIT,
+            'ml_react',
+            'render_ml_react'
+        );
+        add_action('load-' . $my_page, function () {
+            add_action('admin_enqueue_scripts', function (){
+                $ver = gmdate( 'Y-m-d-h-i-s' );
+
+                /* `wp-element` as dependency will load React and ReactDom for our app from `wp-includes` */
+//                wp_enqueue_script( 'md-react-app', PLUGIN_URI . 'dev/dist/index.js', [], $ver . 1, true );
+
+//                wp_enqueue_style( 'md-react-app', $css_to_load, array(), $ver );
+            });
+        });
+    }
+});
+
+function render_ml_react() {
+    $params = [
+        'status' => 'completed',
+    ];
+    $WC_Order_Query = new WC_Order_Query($params);
+    ?>
+    <div id="root">
+
+    </div>
+<?php
 }

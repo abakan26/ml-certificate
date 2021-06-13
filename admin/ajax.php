@@ -58,11 +58,18 @@ add_action('wp_ajax_ml_select_user', function () {
         if (customerHasCertificate($userObj->ID, $productId)) continue;
         $user = $userObj->data;
         $userId = intval($user->ID);
+        $last_name = get_user_meta($userId, 'last_name', true);
+        $first_name = get_user_meta($userId, 'first_name', true);
+        $isDisabled = empty($last_name) || empty($first_name);
         ?>
-        <tr id="user-<?= $userId ?>">
+        <tr id="user-<?= $userId ?>" <?= $isDisabled ? 'style="box-shadow: 0 0 3px red;"' : ''; ?> >
             <th scope="row" class="check-column">
                 <label class="screen-reader-text" for="user_1">Выбрать <?= $user->user_login; ?></label>
-                <input type="checkbox" name="users[]" id="user_<?= $userId ?>" value="<?= $userId ?>">
+                <input type="checkbox"
+                       <?= $isDisabled ? 'disabled' : ''; ?>
+                       name="users[]"
+                       id="user_<?= $userId ?>"
+                       value="<?= $userId ?>">
             </th>
             <td class="username column-username has-row-actions column-primary">
                 <?php if( $isCoach ): ?>
@@ -75,12 +82,12 @@ add_action('wp_ajax_ml_select_user', function () {
             </td>
             <td class="name column-name">
                 <strong>
-                    <?= get_user_meta($userId, 'last_name', true); ?>
+                    <?= $last_name; ?>
                 </strong>
             </td>
             <td class="name column-name">
                 <strong>
-                    <?= get_user_meta($userId, 'first_name', true); ?>
+                    <?= $first_name; ?>
                 </strong>
             </td>
             <td class="name column-name">
@@ -225,4 +232,50 @@ add_action('wp_ajax_ml_save_day_after_course_end', function (){
     update_option( 'ml_day_after_course_end', intval($_POST['day_number']), 'no');
     die(json_encode(['status' => 'success']));
 });
-?>
+
+
+/*  Фильтр выпускников START */
+add_action('wp_ajax_ml_get_product_category', 'ajaxProductCategory');
+add_action('wp_ajax_ml_get_products_by_category_array', 'ajaxGetCourseOptions');
+add_action('wp_ajax_ml_get_filtered_users', 'ajaxGetFilteredMembers');
+add_action('wp_ajax_ml_get_file', 'ajaxSaveUserIds');
+
+add_action('wp_ajax_nopriv_ml_get_product_category', 'ajaxProductCategory');
+add_action('wp_ajax_nopriv_ml_get_products_by_category_array', 'ajaxGetCourseOptions');
+add_action('wp_ajax_nopriv_ml_get_filtered_users', 'ajaxGetFilteredMembers');
+add_action('wp_ajax_nopriv_ml_get_file', 'ajaxSaveUserIds');
+
+function ajaxProductCategory() {
+    echo json_encode(Course::getProductCategory());
+    die();
+}
+function ajaxGetCourseOptions() {
+    $categoryId = intval($_POST['categoryId']);
+    echo json_encode(Course::getCourseOptions($categoryId, true));
+    die();
+}
+function ajaxGetFilteredMembers() {
+    $yesCourses = json_decode(stripslashes($_POST['yes']), true);
+    $noCourses = json_decode(stripslashes($_POST['no']), true);
+
+    $date = '';
+    $datePeriod = '';
+    $wpmLevel = '';
+    if (isset($_POST['date'])) {
+        $date = $_POST['date'];
+        $datePeriod = $_POST['datePeriod'];
+        $wpmLevel = $_POST['wpmLevel'];
+    }
+
+    $filter = new FilterMembers($yesCourses, $noCourses, $date, $datePeriod, $wpmLevel);
+
+    echo json_encode([
+        'users' => $filter->getMembers(),
+    ]);
+    die();
+}
+function ajaxSaveUserIds() {
+    echo FilterMembers::saveUserIds($_POST['userIds']);
+    die();
+}
+/*  Фильтр выпускников END */

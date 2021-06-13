@@ -45,17 +45,77 @@ function add_certificate_fields()
         )
     ));
 
-
-    woocommerce_wp_text_input(array(
-        'id' => 'certificate_series',
-        'name' => 'certificate[certificate_series]',
-        'label' => __('Серия сертификата', 'woocommerce'),
-        'placeholder' => 'CA',
-        'desc_tip' => 'false',
-        'description' => __('Укажите серию сертификата (до пяти символов)', 'woocommerce'),
-        'value' => get_post_meta(get_the_ID(), 'certificate_series', true),
-        'wrapper_class' => 'show_if_yes_certificate'
-    ));
+    echo '<div class="series-group">';
+        woocommerce_wp_text_input(array(
+            'id' => 'certificate_series',
+            'name' => 'certificate[certificate_series]',
+            'label' => __('Серия сертификата', 'woocommerce'),
+            'placeholder' => 'CA',
+            'desc_tip' => 'false',
+            'description' => __('Укажите серию сертификата (до пяти символов)', 'woocommerce'),
+            'value' => get_post_meta(get_the_ID(), 'certificate_series', true),
+            'wrapper_class' => 'show_if_yes_certificate'
+        ));
+        echo '<p class="series-error-msg">Такая серия уже существует</p>';
+        echo '<style>.series-list{
+            font-size: 14px;width: 130px;
+            position:absolute;
+            right: calc(50% - 275px);
+            top: 5px;
+            }.series-group{position:relative;}
+            .series-error {
+            border-color: red!important;
+            }
+            .series-error-msg {
+                color: red;
+                display: none;
+                margin: 0;
+                padding: 0 9px;
+                height: 0;
+                position: relative;
+                top: -15px;
+            }
+            </style>
+            <script>
+                (function($) {
+                  $("#certificate_series").on("blur", verifyCertificateSeries);
+                  $("#certificate_series").on("input", hideError);
+                  function hideError() {
+                    $("#certificate_series").removeClass("series-error");
+                    $("#publish").prop("disabled", false);
+                    $(".series-error-msg").hide();
+                  }
+                  function verifyCertificateSeries(event) {
+                    event.preventDefault();
+                    const body = new FormData();
+                    body.append("series",  event.target.value);
+                    fetch(ajaxurl + "?action=ml_verify_certificate_series", {
+                        method: "POST",
+                        body: body,
+                        
+                    })
+                    .then(response => response.json())
+                    .then(response => {
+                        if (response.status === "success") {
+                             hideError()
+                        } else{
+                             $("#certificate_series").addClass("series-error");
+                             $("#publish").prop("disabled", true);
+                             $(".series-error-msg").show();
+                        }
+                    }).catch(e => alert(e))
+                    
+                  }
+                })(jQuery);
+            </script>
+            ';
+        echo '<select class="series-list">';
+        foreach (Course::getAllSeries() as $key => $series) {
+            $marker = $key + 1;
+            echo "<option>" . $marker . ". " . $series . '</option>';
+        }
+        echo '</select>';
+    echo '</div>';
 
     woocommerce_wp_text_input(array(
         'id' => 'course_name',
@@ -104,27 +164,35 @@ function add_certificate_fields()
         'value' => get_post_meta(get_the_ID(), 'template_id', true),
         'options' => $options
     ));
-
     echo '</div>';
     echo '</div>';
-
 }
 
 add_action('woocommerce_process_product_meta', 'save_certificate_fields', 10);
 function save_certificate_fields($post_id)
 {
-    if (!isset($_POST['certificate'])) return false;
+    if (!isset($_POST['certificate'])) return;
     if (isset($_POST['certificate']['has_certificate'])) {
+        $series = $_POST['certificate']['certificate_series'];
+        $seriesExist = Course::existCertificateSeries($post_id, $series);
         foreach ($_POST['certificate'] as $key => $value) {
+            if ($seriesExist && $key === 'certificate_series'){
+                MLC_AdminNotice::displayError('Такая серия уже существует');
+                continue;
+            }
             update_post_meta($post_id, $key, $value);
         }
-        foreach (Certificate::getCertificatesByProductId($post_id, 'ids', true) as $certificate_id){
-            Certificate::update($certificate_id, [
-               'certificate_template_id' => $_POST['certificate']['template_id'],
-               'series' => $_POST['certificate']['certificate_series'],
-               'course_name' => $_POST['certificate']['course_name'],
-            ]);
+        $updatingFields = [
+            'certificate_template_id' => $_POST['certificate']['template_id'],
+            'course_name' => $_POST['certificate']['course_name'],
+        ];
+        if (!$seriesExist){
+            $updatingFields['series'] = $_POST['certificate']['certificate_series'];
         }
+        foreach (Certificate::getCertificatesByProductId($post_id, 'ids', true) as $certificate_id){
+            Certificate::update($certificate_id, $updatingFields);
+        }
+
     } else {
         delete_post_meta($post_id, 'has_certificate');
         foreach ($_POST['certificate'] as $key => $value) {
@@ -183,3 +251,20 @@ function add_event_table_filters_handler( $query ){
         $query->set( 'post__in', $product_ids);
     }
 }
+
+
+//ml_verify_certificate_series
+add_action('wp_ajax_ml_verify_certificate_series', function () {
+    $series = $_POST['series'];
+    $seriesExist = Course::existCertificateSeries(0, $series);
+    if ($seriesExist){
+        die( json_encode([
+            "status" => "error",
+            "data" => $_POST['series']
+        ]) );
+    }
+    die( json_encode([
+        "status" => "success",
+        "data" => $_POST['series']
+    ]) );
+});

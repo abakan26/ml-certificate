@@ -138,8 +138,8 @@ $certificates = $query['result'];
                     </div>
                     <div class="card-body p-3 collapse show" id="collapse-search" aria-labelledby="heading-search">
                         <div class="form-group">
-                            <label for="certificateTemplateId">Шаблон сертификата</label>
-                            <input class="form-control" type="text" id="certificateSearch" name="search_by_email">
+                            <label for="userEmail">Введите email пользователя</label>
+                            <input class="form-control" type="text" id="userEmail" name="search_by_email">
                             <div class="text-right mt-2">
                                 <button class="btn btn-primary" type="button" data-action="search_by_email">Поиск</button>
                             </div>

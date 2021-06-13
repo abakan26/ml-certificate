@@ -9,19 +9,17 @@ add_action('wp_enqueue_scripts', function (){
 });
 
 add_shortcode( 'certificate_verification', 'certificate_verification_callback' );
+
 //[certificate_verification]
 
 add_action('wp_ajax_ml_verify_certificate_by_fio', 'existCertificateByAjax');
 add_action('wp_ajax_nopriv_ml_verify_certificate_by_fio', 'existCertificateByAjax');
 add_action('wp_ajax_ml_verify_certificate_by_series', 'existCertificateByAjax');
 add_action('wp_ajax_nopriv_ml_verify_certificate_by_series', 'existCertificateByAjax');
-add_action('mbl_after_search_hint_form', function () {
-   ?>
-<!--    <a class="nav-item hidden-xs hidden-sm"-->
-<!--       href="#">-->
-<!--        Часто задаваемые вопросы-->
-<!--    </a>-->
-<?php
+add_action('mbl-body-top', function () {
+    if (empty($_COOKIE['knowledgebase-page'])):
+        include "modal.php";
+    endif;
 });
 
 add_filter( 'template_include', 'portfolio_page_template', 99 );

@@ -15,6 +15,10 @@ class ComposerStaticInitc22bb2fed85c6977a35bc1235446d7fe
         array (
             'setasign\\Fpdi\\' => 14,
         ),
+        'S' => 
+        array (
+            'Spatie\\PdfToImage\\' => 18,
+        ),
         'P' => 
         array (
             'Psr\\Log\\' => 8,
@@ -34,6 +38,10 @@ class ComposerStaticInitc22bb2fed85c6977a35bc1235446d7fe
         array (
             0 => __DIR__ . '/..' . '/setasign/fpdi/src',
         ),
+        'Spatie\\PdfToImage\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/spatie/pdf-to-image/src',
+        ),
         'Psr\\Log\\' => 
         array (
             0 => __DIR__ . '/..' . '/psr/log/Psr/Log',
@@ -48,11 +56,27 @@ class ComposerStaticInitc22bb2fed85c6977a35bc1235446d7fe
         ),
     );
 
+    public static $prefixesPsr0 = array (
+        'P' => 
+        array (
+            'PHPExcel' => 
+            array (
+                0 => __DIR__ . '/..' . '/phpoffice/phpexcel/Classes',
+            ),
+        ),
+    );
+
+    public static $classMap = array (
+        'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
+    );
+
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
             $loader->prefixLengthsPsr4 = ComposerStaticInitc22bb2fed85c6977a35bc1235446d7fe::$prefixLengthsPsr4;
             $loader->prefixDirsPsr4 = ComposerStaticInitc22bb2fed85c6977a35bc1235446d7fe::$prefixDirsPsr4;
+            $loader->prefixesPsr0 = ComposerStaticInitc22bb2fed85c6977a35bc1235446d7fe::$prefixesPsr0;
+            $loader->classMap = ComposerStaticInitc22bb2fed85c6977a35bc1235446d7fe::$classMap;
 
         }, null, ClassLoader::class);
     }

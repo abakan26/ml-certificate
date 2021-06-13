@@ -51,8 +51,8 @@ class CertificateTemplate
         if (!empty($this->img_src)) {
             return $this->img_src;
         }
-        $this->img_src = wp_get_attachment_image_src($this->getContent()->attachment_id, 'full')[0];
-        return $this->img_src;
+        $this->img_src = wp_get_attachment_image_url($this->getContent()->attachment_id, 'full');
+        return $this->img_src ? $this->img_src : "";
     }
 
     public static function getTemplate(int $id): CertificateTemplate

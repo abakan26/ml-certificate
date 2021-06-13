@@ -43,6 +43,27 @@ $FIELDS = [
         ]
     ),
     new Field(
+        'Дата окончания доступа',
+        'date_end',
+        [
+            'hide' => 1,  /*Скрывать это поле? Если hide = 1, то поле будет скрыто.*/
+            'position' => [
+                'top' => 969,
+                'left' => 392,
+            ],
+            'size' => [
+                'width' => 85
+            ],
+            'text_align' => 'center',
+            'font_size' => 14,
+            'font_weight' => 'normal',
+            'color' => '#000000',
+            'font_family' => 'opensans',
+            'line_height' => 24,
+            'example_text' => '18.05.2021',
+        ]
+    ),
+    new Field(
         'Серия',
         'series',
         [

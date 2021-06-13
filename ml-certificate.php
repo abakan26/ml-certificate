@@ -25,6 +25,7 @@ spl_autoload_register(function ($class_name) {
 });
 require_once __DIR__ . '/admin/admin.php';
 require_once __DIR__ . '/public/frontend.php';
+require_once __DIR__ . '/event/main.php';
 
 register_activation_hook(__FILE__, 'ml_certificate_activate');
 add_action("init", function (){

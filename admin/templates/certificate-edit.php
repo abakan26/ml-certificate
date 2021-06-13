@@ -1,6 +1,5 @@
 <?php
 
-
 ?>
 <style>
     th.sortable > span,  th.sorted > span{
@@ -58,7 +57,7 @@
         </tr>
         </thead>
         <tbody id="the-list">
-        
+
         </tbody>
     </table>
 </form>

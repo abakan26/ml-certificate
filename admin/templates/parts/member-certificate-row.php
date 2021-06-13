@@ -19,7 +19,7 @@ function renderRow($props, $uniqKey, $return = false)
         <td><?= $props->graduate_first_name ?></td>
         <td><?= $props->graduate_surname ?></td>
         <td><?= $props->certificate_name ?></td>
-        <td><?= $props->date_issue ?></td>
+        <td><?= date('d-m-Y', strtotime($props->date_issue)) ?></td>
         </td>
         <td>
             <a href="<?= get_edit_user_link($responsible_person->ID); ?>"
@@ -39,7 +39,7 @@ function renderRow($props, $uniqKey, $return = false)
                 <span class="fa fa-eye"></span>
             </a>
         </td>
-        <td><?= $props->create_date ?></td>
+        <td><?= date('d-m-Y', strtotime($props->create_date)) ?></td>
     </tr>
     <?php if ($return) return ob_get_clean();
 }

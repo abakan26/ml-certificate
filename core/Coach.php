@@ -62,9 +62,18 @@ class Coach
             'post_type' => 'product',
             'suppress_filters' => true,
             'meta_query' => [
+                'relation' => 'AND',
+                [
+                    'key' => 'has_certificate',
+                    'value' => 'yes'
+                ],
                 [
                     'key' => '_mbl_key_pin_code_level_id',
                     'value' => $CourseWpmLevel
+                ],
+                [
+                    'key' => 'how_to_issue',
+                    'value' => 'employee'
                 ]
             ]
         ]);

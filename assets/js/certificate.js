@@ -48,6 +48,13 @@ class CertificateTable {
         this.perPageControl.addEventListener("change", event => this.perPageHandler(event));
         this.setNewTemplateBtn.addEventListener("click", event => this.setNewTemplate(event));
         this.searchBtn.addEventListener("click", event => this.searchByEmail(event));
+        this.form.elements["search_by_email"].addEventListener("keydown", event => {
+            if (event.code === 'Enter') {
+                event.preventDefault();
+                this.searchByEmail(event);
+                return false;
+            }
+        })
         Array.from(this.orders).forEach(
             order => order.addEventListener("click", () => this.orderHandler(order))
         );
