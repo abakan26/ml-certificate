@@ -148,11 +148,6 @@ add_action('admin_menu', function (){
         add_action('load-' . $my_page, function () {
             add_action('admin_enqueue_scripts', function (){
                 $ver = gmdate( 'Y-m-d-h-i-s' );
-
-                /* `wp-element` as dependency will load React and ReactDom for our app from `wp-includes` */
-//                wp_enqueue_script( 'md-react-app', PLUGIN_URI . 'dev/dist/index.js', [], $ver . 1, true );
-
-//                wp_enqueue_style( 'md-react-app', $css_to_load, array(), $ver );
             });
         });
     }
