@@ -60,6 +60,11 @@ function view_user_profile_available_certificates_no_admin($profileuser)
 
         $generator = CertificateGenerator::getCertificateGeneratorByCertificate($certificate);
         if (isset($_GET['download']) && !empty($_GET['download'])) {
+            if (isset($_GET['type']) && $_GET['type'] === 'jpg') {
+                $generatorJPG = new CertificateGeneratorJPG($generator);
+                $generatorJPG->render('certificate.jpg', CertificateGenerator::DOWNLOAD);
+                exit();
+            }
             $generator->render('certificate.pdf',  CertificateGenerator::DOWNLOAD);
             exit();
         }
